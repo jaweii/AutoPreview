@@ -1,0 +1,72 @@
+html,
+body,
+#app,
+#iframe {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  font-size: 13px;
+  user-select: none;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+body.vscode-light {
+  color: rgba(0, 0, 0, 0.8);
+}
+
+body.vscode-dark {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+body.vscode-high-contrast {
+  color: red;
+}
+
+a {
+  cursor: pointer;
+  color: var(--vscode-textLink-foreground) !important;
+}
+
+a:active {
+  color: inherit !important;
+}
+
+.input {
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  border: 1px solid var(--vscode-input-border);
+  height: 23px;
+  line-height: 23px;
+  padding: 0 5px;
+  box-sizing: border-box;
+  border: 1px solid transparent !important;
+}
+
+.input:focus {
+  border: 1px solid var(--vscode-focusBorder) !important;
+  outline: none;
+}
+
+.button {
+  background-color: var(--vscode-button-background) !important;
+  color: var(--vscode-button-foreground) !important;
+  height: 23px;
+  line-height: 23px;
+}
+.button:active {
+  background-color: var(--vscode-button-hoverBackground) !important;
+}
+
+.select {
+  background: var(--vscode-dropdown-background);
+  outline: none !important;
+  height: 23px;
+}
