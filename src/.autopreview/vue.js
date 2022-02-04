@@ -1,6 +1,10 @@
 import AutoPreview from "./Autopreview.js";
 
 export default class AutoPreviewForVue extends AutoPreview {
+  constructor(options) {
+    super(options)
+    this.framework = 'vue'
+  }
   /**
    * @param {number} [index]
    * @returns {void}
@@ -20,7 +24,14 @@ export default class AutoPreviewForVue extends AutoPreview {
       .map((key) => {
         return activeModule[key]
       });
-    const Vue = await import('vue')
+    let Vue = await import('vue')
+    if (Vue.default && Vue.default.name === 'Vue') {
+      // TODO: 确认
+      // vue 2.0
+      Vue = Vue.default
+    } else {
+      // vue 3.0
+    }
     const version = Number(Vue.version.split('.')[0])
 
     let component
@@ -45,7 +56,6 @@ export default class AutoPreviewForVue extends AutoPreview {
     const filename = currentActiveFilePath.match(/[ \w-]+\./) || ['']
     const name = filename[0].replace(/\./g, '')
     if (!name) {
-      console.log(name, currentActiveFilePath)
       return
     }
 
@@ -58,14 +68,20 @@ export default class AutoPreviewForVue extends AutoPreview {
     parent.appendChild(container)
     if (version === 3) {
       const app = Vue.createApp(component)
-      if (name) {
-        const asyncComponent = Vue.defineAsyncComponent(() => import(currentActiveFilePath))
-        app.component(name, asyncComponent)
-      }
+      const asyncComponent = Vue.defineAsyncComponent(() => import(currentActiveFilePath))
+      app.component(name, asyncComponent)
       keys.forEach(key => app.component(key, activeModule[key]))
       app.mount(container)
     } else if (version === 2) {
-      // Vue 2
+      Vue.component(name, activeModule['default'])
+      components.forEach(key => Vue.component(key, activeModule[key]))
+      const app = new Vue({
+        render(h) {
+          return component(h)
+        }
+      })
+      const rootComponent = app.$mount()
+      container.appendChild(rootComponent.$el)
     } else {
       // 不支持的 Vue 的版本
     }

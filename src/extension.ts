@@ -62,8 +62,9 @@ export function activate(context: vscode.ExtensionContext) {
   vscode.window.onDidChangeActiveTextEditor(onActiveTextEditorChange);
   onActiveTextEditorChange();
 
-  vscode.workspace.onDidSaveTextDocument((e) => {
-    // vue 3 的AutoPreview_函数组件的更新不会出发页面渲染，这里手动重新渲染
+  vscode.workspace.onDidSaveTextDocument(async (e) => {
+    // TODO: 
+    // vue 的AutoPreview_函数组件的更新不会出发页面渲染，这里手动重新渲染
     if (e.languageId === "vue" && previewer.activeFile) {
       previewer.setActiveFile(updateNodeModule(previewer.activeFile, context));
     }
@@ -108,7 +109,7 @@ function updateNodeModule(
   }
   // 当前窗口是否使用AutoPreview, vue文件除外
   if (
-    !/(vue)$/.test(activeFilePath) &&
+    // !/(vue)$/.test(activeFilePath) &&
     activeFileContent.indexOf("AutoPreview_") === -1
   ) {
     activeFilePath = "";

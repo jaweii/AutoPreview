@@ -1,13 +1,15 @@
+// @ts-nocheck
 const template = (window as any).template;
 
 (async function main() {
   await loadModule("/modules/store");
   await loadModule("/modules/App");
   await loadModule("/modules/ConfigPanel");
+  await loadModule("/modules/Toolbar");
   await loadModule("/modules/Preview");
   await loadModule("/modules/NotRunning");
 
-  const { App } = exports;
+  const App = exports.App;
   ReactDOM.render(<App />, document.querySelector("#app"));
 })();
 

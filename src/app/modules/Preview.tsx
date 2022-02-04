@@ -1,8 +1,9 @@
 // @ts-nocheck
 
 export function Preview() {
-  const { store } = exports;
+  const { store, Toolbar } = exports;
   const { Observer } = mobxReactLite;
+  const { useEffect } = React;
 
   const methods = {
     onLoad(e) {
@@ -18,68 +19,63 @@ export function Preview() {
   };
 
   const iframeUrl = `${store.serverURL}?AutoPreview=true`;
-
   return (
-    <Observer>
-      {() => {
-        return (
-          <>
-            {!store.activeFile && (
-              <div className="h-full w-full flex justify-center items-center">
-                未导出预览内容
-              </div>
-            )}
-            {store.activeFile && (
+    <>
+      <div className="w-full h-full relative">
+        <Observer>
+          {() => {
+            return (
+              <>
+                <div
+                  className="absolute h-full w-full flex justify-center flex-col items-center"
+                  style={{
+                    display: store.packageInitiated ? "none" : undefined,
+                  }}
+                >
+                  <div>未初始化</div>
+                  <code className="m-4 text-sm break-al">
+                    <div>import AutoPreview from 'autopreview/react'</div>
+                    <div>// or</div>
+                    <div>import AutoPreview from 'autopreview/vue'</div>
+                    <div className="my-2"></div>
+                    <div>new AutoPreview(rootSelector)</div>
+                  </code>
+                </div>
+                <div
+                  className="absolute h-full w-full flex justify-center items-center"
+                  style={{
+                    display: store.packageInitiated
+                      ? !store.activeFile
+                        ? undefined
+                        : "none"
+                      : "none",
+                  }}
+                >
+                  未导出预览内容
+                </div>
+              </>
+            );
+          }}
+        </Observer>
+        <Observer>
+          {() => {
+            return (
               <iframe
                 id="iframe"
+                className="absolute w-full h-full"
                 src={iframeUrl}
                 frameBorder="0"
+                style={{
+                  visibility: store.packageInitiated ? undefined : "hidden",
+                }}
                 onLoad={methods.onLoad}
               ></iframe>
-            )}
+            );
+          }}
+        </Observer>
+      </div>
 
-            <div className="tool-bar w-full flex justify-between items-center h-8">
-              <div className="flex items-center">
-                <div
-                  className="codicon codicon-refresh mx-1 cursor-pointer active:opacity-70"
-                  onClick={() => store.postMessage({ command: "REFRESH" })}
-                  title="Refresh"
-                ></div>
-                {store.locked && (
-                  <div
-                    className="codicon codicon-lock mx-1 cursor-pointer active:opacity-70"
-                    onClick={() => store.lock(false)}
-                    title="Lock current Preview"
-                  ></div>
-                )}
-                {!store.locked && (
-                  <div
-                    className="codicon codicon-unlock mx-1 cursor-pointer active:opacity-70"
-                    onClick={() => store.lock(true)}
-                    title="Unlock current Preview"
-                  ></div>
-                )}
-              </div>
-              <div>
-                {store.components.length > 1 && (
-                  <select
-                    className="select px-2"
-                    onChange={(e) => store.selectComponent(+e.target.value)}
-                  >
-                    {store.components.map((name, i) => {
-                      return (
-                        <option key={name} value={i}>
-                          {name.replace("AutoPreview_", "")}
-                        </option>
-                      );
-                    })}
-                  </select>
-                )}
-              </div>
-            </div>
-          </>
-        );
-      }}
-    </Observer>
+      <Toolbar />
+    </>
   );
 }

@@ -3,9 +3,7 @@ const { makeAutoObservable, runInAction } = (window as any).mobx;
 class Store {
   constructor() {
     this.init();
-    makeAutoObservable(this, undefined, {
-      activeFile: false,
-    });
+    makeAutoObservable(this);
   }
 
   serverURL = "";
@@ -16,6 +14,7 @@ class Store {
   componentIndex = 0;
 
   serverUrlLoadFailed = false;
+  packageInitiated = false;
 
   locked = false;
 
@@ -40,23 +39,30 @@ class Store {
 
     window.addEventListener("message", (e) => {
       console.log("[extension/view] received a message", e.data);
-      runInAction(() => {
-        switch (e.data.command) {
-          case "SET_COMPONENT_LIST":
+      switch (e.data.command) {
+        case "SET_COMPONENT_LIST":
+          runInAction(() => {
             this.components = e.data.data;
-            break;
-          case "SET_ACTIVE_FILE":
+          });
+          break;
+        case "SET_ACTIVE_FILE":
+          runInAction(() => {
             this.activeFile = e.data.data;
-            this.postMessage({
-              command: "SET_ACTIVE_FILE",
-              data: this.activeFile,
-            });
-            break;
-          default:
-            console.log("[extension/view] ignore command:", e.data.command);
-            break;
-        }
-      });
+          });
+          this.postMessage({
+            command: "SET_ACTIVE_FILE",
+            data: this.activeFile,
+          });
+          break;
+        case "PACKAGE_INITIATED":
+          runInAction(() => {
+            this.packageInitiated = true;
+          });
+          break;
+        default:
+          console.log("[extension/view] ignore command:", e.data.command);
+          break;
+      }
     });
   }
 

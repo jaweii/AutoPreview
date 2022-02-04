@@ -3,6 +3,10 @@ import ReactDOM from "react-dom";
 import AutoPreview from "./Autopreview.js";
 
 export default class AutoPreviewForReact extends AutoPreview {
+  constructor(options) {
+    super(options)
+    this.framework = 'react'
+  }
   /**
    * @param {number} [index]
    * @returns {void}
