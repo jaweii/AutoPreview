@@ -7,7 +7,7 @@ export default function Textfield() {
       component="form"
       sx={{ p: "2px 4px", display: "flex", alignItems: "center", width: 200 }}
     >
-      <InputBase sx={{ ml: 1, flex: 1 }} placeholder="电话" />
+      <InputBase sx={{ ml: 1, flex: 1 }} placeholder="Phone" />
     </Paper>
   );
 }

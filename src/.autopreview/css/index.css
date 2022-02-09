@@ -13,8 +13,10 @@ body::-webkit-scrollbar {
   width: 0 !important;
 }
 
-#iframe {
-  position: absolute;
-  width: 100%;
-  height: 100%;
+body {
+  visibility: hidden !important;
+  backgroundcolor: transparent;
+}
+body.autopreview-loaded {
+  visibility: visible !important;
 }

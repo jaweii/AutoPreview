@@ -48,7 +48,11 @@ export default class AutoPreviewForVue extends AutoPreview {
     parent.removeChild(target)
     parent.appendChild(container)
 
-    const app = Vue.createApp(component)
+    const app = Vue.createApp({
+      render(){
+        return Vue.h(component)
+      }
+    })
     const asyncComponent = Vue.defineAsyncComponent(() => import(currentActiveFilePath))
     app.component(name, asyncComponent)
     components.forEach(item => app.component(item.name, item.component))

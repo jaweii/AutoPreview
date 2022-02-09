@@ -1,9 +1,18 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const vue_1 = require("vue");
-const App_vue_1 = require("./App.vue");
-const vue_2 = require("autopreview/vue");
-const app = (0, vue_1.createApp)(App_vue_1.default);
-app.mount('#app');
-new vue_2.default('#app');
-//# sourceMappingURL=main.js.map
+import { createApp } from 'vue';
+import App from './App.vue';
+import vuetify from './plugins/vuetify';
+import { loadFonts } from './plugins/webfontloader';
+
+loadFonts();
+
+createApp(App)
+  .use(vuetify)
+  .mount('#app');
+
+if (process.env.NODE_ENV === "development") {
+  import("autopreview/vue3").then(({ default: AutoPreview }) => {
+    new AutoPreview("#app", (app) => {
+      app.use(vuetify);
+    });
+  });
+}

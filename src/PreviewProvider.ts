@@ -2,6 +2,8 @@ import * as vscode from "vscode";
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 import { getExtensionConfig } from "./utils/vscode";
+import axios from "axios";
+import * as http from "http";
 
 export class PreviewProvider implements vscode.WebviewViewProvider {
   init(_extensionUri: vscode.Uri) {
@@ -14,6 +16,7 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
   view?: vscode.WebviewView;
   serverURL?: string;
   activeFile?: string;
+  serviceAvailable = false;
   componentIndex = 0;
 
   resolveWebviewView(
@@ -39,7 +42,7 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
               await getExtensionConfig().update(key, data[key]);
             }
             this.loadConfig();
-            this.refreshPage();
+            this.refreshPage({ force: true });
             break;
           case "SET_COMPONENT_INDEX":
             this.componentIndex = data;
@@ -68,7 +71,7 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
         }
       }
     );
-    this.refreshPage();
+    this.refreshPage({ force: true });
   }
 
   loadConfig() {
@@ -91,12 +94,35 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
     });
   }
 
+  async checkServerURL() {
+    if (!this.serverURL) {
+      return (this.serviceAvailable = false);
+    }
+    try {
+      await new Promise((resolve, reject) => {
+        http
+          .get(this.serverURL!, (res) => {
+            this.serviceAvailable = true;
+            resolve(true);
+          })
+          .on("error", (err) => {
+            this.serviceAvailable = false;
+            resolve(false);
+          });
+      });
+    } catch (err) {
+      console.log(err);
+      this.serviceAvailable = false;
+    }
+  }
+
   async refreshPage({ force }: { force?: boolean } = {}) {
     if (!this.view) {
       return;
     }
     this.loadConfig();
     if (force) {
+      await this.checkServerURL();
       this.view.webview.html = "";
       await new Promise((resolve, reject) => setTimeout(resolve, 50));
       this.view!.webview.html = this._getHtmlForWebview();
@@ -153,6 +179,10 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
     };
     let html = readFileSync(appFilePath, "utf-8");
     html = html.replace("__SERVER_URL__", this.serverURL || "");
+    html = html.replace(
+      "__SERVER_URL_AVAILABLE__",
+      this.serviceAvailable ? "true" : "false"
+    );
     html = html.replace("__VS_CONFIG__", JSON.stringify(getExtensionConfig()));
     Object.keys(styles).forEach((key) => {
       html = html.replace(key, styles[key].toString());

@@ -2,9 +2,6 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
-import initAutoPreviewForReact from "autopreview/react";
-
-initAutoPreviewForReact("#root");
 
 ReactDOM.render(
   <React.StrictMode>
@@ -12,3 +9,9 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById("root")
 );
+
+if (process.env.NODE_ENV === "development") {
+  import("autopreview/react").then(({ default: AutoPreview }) => {
+    new AutoPreview("#root");
+  });
+}

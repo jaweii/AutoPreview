@@ -38,6 +38,7 @@ export default class AutoPreview {
         switch (e.data.command) {
           case 'SET_ACTIVE_FILE':
             this.currentActiveFilePath = e.data.data
+            document.body.classList.remove('autopreview-loaded')
             if (this.buildTool === 'webpack') {
               // 热更新更新不到AutoPreview_函数，需要手动更新，这里避免热更新和手动更新同时进行，否则会不生效
               await new Promise((resolve, reject) => setTimeout(resolve, 500))
@@ -58,16 +59,13 @@ export default class AutoPreview {
 
       initiated = true
       window.parent.postMessage({ command: 'PACKAGE_INITIATED' }, '*')
+    } else {
+      document.body.classList.add('autopreview-loaded')
     }
   }
 
   async _showComponent() {
     const root = document.querySelector('[data-autopreview]')
-    Object.assign(document.body.style, {
-      backgroundColor: 'transparent',
-      visibility: 'hidden',
-      opacity: '0'
-    })
     Object.assign(root.style, {
       backgroundColor: 'transparent',
       width: '100%',
@@ -95,10 +93,9 @@ export default class AutoPreview {
       })
 
     await this.showComponent(components, this.componentIndex)
-    window.parent.postMessage({ command: 'COMPONENT_LOADED' }, '*')
     if (this.currentActiveFilePath) {
-      document.body.style.visibility = 'visible'
-      document.body.style.opacity = '1'
+      window.parent.postMessage({ command: 'COMPONENT_MOUNTED' }, '*')
+      document.body.classList.add('autopreview-loaded')
     }
   }
 

@@ -19,9 +19,11 @@ class Store {
   componentIndex = 0;
 
   /** 服务是否请求失败 */
-  serverUrlLoadFailed = false;
+  serverURLAvailable = true;
   /** module是否初始化 */
   packageInitiated = false;
+  /** 组件是否已挂载 */
+  mounted = false;
 
   /** 是否锁定窗口组件 */
   locked = false;
@@ -31,26 +33,20 @@ class Store {
   background = "white";
 
   init() {
-    const { serverURL, activeFile, componentIndex, config } = (window as any)
-      .template;
+    const {
+      serverURL,
+      serverURLAvailable,
+      activeFile,
+      componentIndex,
+      config,
+    } = (window as any).template;
     this.serverURL = serverURL;
+    this.serverURLAvailable = serverURLAvailable;
     this.activeFile = activeFile;
     this.componentIndex = componentIndex;
     this.config = config;
     this.locked = config.locked ?? this.locked;
     this.background = config.background ?? this.background;
-
-    if (this.serverURL) {
-      // 检查ServerURL是否运行
-      const xhttp = new XMLHttpRequest();
-      const that = this;
-      // @ts-ignore
-      xhttp.onreadystatechange = function () {
-        that.serverUrlLoadFailed = this.readyState === 4 && this.status !== 200;
-      };
-      xhttp.open("GET", this.serverURL, true);
-      xhttp.send();
-    }
 
     window.addEventListener("message", (e) => {
       console.log("[extension/view] received a message", e.data);
@@ -67,6 +63,7 @@ class Store {
           break;
         case "SET_ACTIVE_FILE":
           runInAction(() => {
+            this.mounted = false;
             this.activeFile = e.data.data;
           });
           this.postMessage({
@@ -78,6 +75,14 @@ class Store {
           runInAction(() => {
             this.packageInitiated = true;
           });
+          break;
+        case "COMPONENT_MOUNTED":
+          // 延迟显示 解决闪烁问题
+          setTimeout(() => {
+            runInAction(() => {
+              this.mounted = true;
+            });
+          }, 1000);
           break;
         case "ERROR":
           // @ts-ignore
@@ -119,7 +124,7 @@ class Store {
   }
 
   postMessage(data: any) {
-    if (this.serverURL && !this.serverUrlLoadFailed) {
+    if (this.serverURL && this.serverURLAvailable) {
       const iframe = document.querySelector("#iframe");
       // @ts-ignore
       iframe?.contentWindow?.postMessage(data, "*");

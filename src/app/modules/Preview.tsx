@@ -75,7 +75,7 @@ export function Preview() {
                       src={iframeUrl}
                       frameBorder="0"
                       style={{
-                        visibility: store.packageInitiated
+                        visibility: store.mounted
                           ? undefined
                           : "hidden",
                       }}

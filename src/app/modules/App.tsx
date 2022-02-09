@@ -15,7 +15,7 @@ export function App() {
       {() => {
         if (!store.serverURL) {
           return <ConfigPanel />;
-        } else if (store.serverUrlLoadFailed) {
+        } else if (!store.serverURLAvailable) {
           return <NotRunning />;
         } else {
           return <Preview />;

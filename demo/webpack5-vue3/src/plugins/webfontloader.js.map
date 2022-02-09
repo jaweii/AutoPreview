@@ -1,1 +1,0 @@
-{"version":3,"file":"webfontloader.js","sourceRoot":"","sources":["webfontloader.ts"],"names":[],"mappings":";AAAA;;;;GAIG;;;AAEI,KAAK,UAAU,SAAS;IAC7B,MAAM,aAAa,GAAG,2CAAa,uCAAuC,CAAA,eAAe,EAAC,CAAA;IAE1F,aAAa,CAAC,IAAI,CAAC;QACjB,MAAM,EAAE;YACN,QAAQ,EAAE,CAAC,6CAA6C,CAAC;SAC1D;KACF,CAAC,CAAA;AACJ,CAAC;AARD,8BAQC"}
