@@ -11,21 +11,39 @@ export function Toolbar() {
             <div className="flex items-center">
               <div
                 className="codicon codicon-refresh mx-1 cursor-pointer active:opacity-70"
-                onClick={() => store.postMessage({ command: "REFRESH" })}
+                onClick={() => {
+                  store.postMessage({
+                    command: "REFRESH",
+                  });
+                }}
                 title="Refresh"
               ></div>
               {store.locked && (
                 <div
                   className="codicon codicon-lock mx-1 cursor-pointer active:opacity-70"
                   onClick={() => store.lock(false)}
-                  title="Lock current Preview"
+                  title="Lock current preview"
                 ></div>
               )}
               {!store.locked && (
                 <div
                   className="codicon codicon-unlock mx-1 cursor-pointer active:opacity-70"
                   onClick={() => store.lock(true)}
-                  title="Unlock current Preview"
+                  title="Unlock current preview"
+                ></div>
+              )}
+              {store.background === "transparent" && (
+                <div
+                  className="codicon codicon-color-mode mx-1 cursor-pointer active:opacity-70"
+                  onClick={() => store.setBG("white")}
+                  title="Set white background"
+                ></div>
+              )}
+              {store.background === "white" && (
+                <div
+                  className="codicon codicon-circle-large-filled mx-1 cursor-pointer active:opacity-70"
+                  onClick={() => store.setBG("transparent")}
+                  title="Set transparent background"
                 ></div>
               )}
             </div>
@@ -34,6 +52,7 @@ export function Toolbar() {
                 <select
                   className="select px-2"
                   onChange={(e) => store.selectComponent(+e.target.value)}
+                  value={store.componentIndex}
                 >
                   {store.components.map((name, i) => {
                     return (

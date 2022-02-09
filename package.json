@@ -71,6 +71,11 @@
           "$comment": "是否锁定",
           "type": "boolean",
           "default": false
+        },
+        "AutoPreview.background": {
+          "$comment": "背景色",
+          "type": "string",
+          "default": "transparent"
         }
       }
     }

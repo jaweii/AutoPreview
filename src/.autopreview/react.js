@@ -8,36 +8,24 @@ export default class AutoPreviewForReact extends AutoPreview {
     this.framework = 'react'
   }
   /**
-   * @param {number} [index]
-   * @returns {void}
-   */
-  async showComponent(index = 0) {
-    if (!this.selector) return;
-    const activeModule = await this.getModule() || {};
-    const keys = Object.keys(activeModule)
-      .filter((key) => {
-        if (key.startsWith("AutoPreview_")) {
-          return true
-        }
-        return false
-      })
-    window.parent.postMessage({ command: 'SET_COMPONENT_LIST', data: keys }, '*')
-    const components = keys
-      .map((key) => activeModule[key]);
-
+   * @param {Array<{ name:string, component:object}>} [components]
+  * @param {number} [index]
+  * @returns {void}
+  */
+  async showComponent(components, index = 0) {
     let el
     if (components.length === 0) {
       el = createElement("div", {}, "No components found")
     } else if (components.length === 1) {
-      el = createElement(components[0])
+      el = createElement(components[0].component)
     } else {
-      el = createElement(components[index])
+      el = createElement(components[index].component)
     }
 
     return new Promise((resolve, reject) => {
       ReactDOM.render(
         el,
-        document.querySelector(this.selector),
+        document.querySelector(['[data-autopreview]']),
         () => resolve(undefined)
       );
     });

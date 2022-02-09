@@ -14,6 +14,7 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
   view?: vscode.WebviewView;
   serverURL?: string;
   activeFile?: string;
+  componentIndex = 0;
 
   resolveWebviewView(
     webviewView: vscode.WebviewView,
@@ -31,6 +32,8 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
       async ({ command, data }: { command: string; data: any }) => {
         console.log("[extension] receive a message:", command, data);
         switch (command) {
+          case "APP_LOADED":
+            break;
           case "UPDATE_CONFIG":
             for (const key in data) {
               await getExtensionConfig().update(key, data[key]);
@@ -38,8 +41,13 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
             this.loadConfig();
             this.refreshPage();
             break;
+          case "SET_COMPONENT_INDEX":
+            this.componentIndex = data;
+            break;
           case "REFRESH":
-            this.refreshPage({ force: true });
+            this.refreshPage({
+              force: true,
+            });
             break;
           case "LOCK":
             if (data) {
@@ -47,6 +55,12 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
             } else {
               vscode.commands.executeCommand("AutoPreview.debug.unlock");
             }
+            break;
+          case "ERROR":
+            vscode.window.showErrorMessage(data);
+            break;
+          case "SET_BACKGROUND":
+            getExtensionConfig().update("background", data);
             break;
           default:
             console.log("[extension] Ignore command:", command);
@@ -63,7 +77,14 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
   }
 
   setActiveFile(activeFile?: string) {
+    if (this.activeFile !== activeFile) {
+      this.componentIndex = 0;
+    }
     this.activeFile = activeFile;
+    this.view?.webview.postMessage({
+      command: "SET_COMPONENT_INDEX",
+      data: this.componentIndex,
+    });
     this.view?.webview.postMessage({
       command: "SET_ACTIVE_FILE",
       data: activeFile,
@@ -77,9 +98,8 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
     this.loadConfig();
     if (force) {
       this.view.webview.html = "";
-      setTimeout(() => {
-        this.view!.webview.html = this._getHtmlForWebview();
-      }, 50);
+      await new Promise((resolve, reject) => setTimeout(resolve, 50));
+      this.view!.webview.html = this._getHtmlForWebview();
     } else {
       this.view.webview.html = this._getHtmlForWebview();
     }
@@ -145,6 +165,7 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
       `${appUri.toString().replace("/index.js", "")}`
     );
     html = html.replace("__ACTIVE_FILE__", this.activeFile || "");
+    html = html.replace("__COMPONENT_INDEX__", this.componentIndex.toString());
     return html;
   }
 

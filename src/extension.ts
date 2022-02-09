@@ -9,6 +9,7 @@ export function activate(context: vscode.ExtensionContext) {
   previewer.init(context.extensionUri);
 
   vscode.commands.registerCommand("AutoPreview.debug.refresh", () => {
+    initWorkspace();
     previewer.refreshPage({ force: true });
   });
   vscode.commands.registerCommand("AutoPreview.debug.lock", async () => {
@@ -29,18 +30,18 @@ export function activate(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(disposable);
 
-  const initWorkspace = async () => {
+  async function initWorkspace() {
     if (!getActiveFolder()) {
       return;
     }
     installNodeModule(context);
     previewer.loadConfig();
-  };
+  }
   initWorkspace();
   vscode.workspace.onDidChangeWorkspaceFolders((e) => initWorkspace());
 
   // 活动窗口变化
-  const onActiveTextEditorChange = async () => {
+  async function onActiveTextEditorChange() {
     const activeFilePath = vscode.window.activeTextEditor?.document.uri.path;
     if (!activeFilePath) {
       return;
@@ -58,12 +59,12 @@ export function activate(context: vscode.ExtensionContext) {
     if (!existsSync(modulePath)) {
       installNodeModule(context);
     }
-  };
+  }
   vscode.window.onDidChangeActiveTextEditor(onActiveTextEditorChange);
   onActiveTextEditorChange();
 
   vscode.workspace.onDidSaveTextDocument(async (e) => {
-    // TODO: 
+    // TODO:
     // vue 的AutoPreview_函数组件的更新不会出发页面渲染，这里手动重新渲染
     if (e.languageId === "vue" && previewer.activeFile) {
       previewer.setActiveFile(updateNodeModule(previewer.activeFile, context));
