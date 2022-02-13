@@ -72,7 +72,6 @@ export default class AutoPreview {
       height: '100%',
       display: 'flex',
       flexDirection: 'column',
-      justifyContent: 'center',
       alignItems: 'center',
     })
     const activeModule = await this.getModule() || {}
@@ -94,8 +93,11 @@ export default class AutoPreview {
 
     await this.showComponent(components, this.componentIndex)
     if (this.currentActiveFilePath) {
-      window.parent.postMessage({ command: 'COMPONENT_MOUNTED' }, '*')
       document.body.classList.add('autopreview-loaded')
+      // 有时闪烁 延迟显示 
+      setTimeout(() => {
+        window.parent.postMessage({ command: 'COMPONENT_MOUNTED' }, '*')
+      }, 100);
     }
   }
 

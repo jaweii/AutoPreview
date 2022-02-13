@@ -77,12 +77,9 @@ class Store {
           });
           break;
         case "COMPONENT_MOUNTED":
-          // 延迟显示 解决闪烁问题
-          setTimeout(() => {
-            runInAction(() => {
-              this.mounted = true;
-            });
-          }, 1000);
+          runInAction(() => {
+            this.mounted = true;
+          });
           break;
         case "ERROR":
           // @ts-ignore
