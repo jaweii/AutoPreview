@@ -82,7 +82,7 @@ function installNodeModule(context: vscode.ExtensionContext) {
   if (!existsSync(packagePath)) {
     return;
   }
-  const src = join(context.extensionUri.path, "src", ".autopreview");
+  const src = join(context.extensionUri.path, ".autopreview");
   const dst = join(getActiveFolder()!.uri.path, "node_modules", "autopreview");
   copySync(src, dst);
 }
@@ -91,7 +91,7 @@ function updateNodeModule(
   activeFilePath: string,
   context: vscode.ExtensionContext
 ) {
-  const src = join(context.extensionUri.path, "src", ".autopreview");
+  const src = join(context.extensionUri.path, ".autopreview");
   const node_module = join(
     getActiveFolder()!.uri.path,
     "node_modules",
