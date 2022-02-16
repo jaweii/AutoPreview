@@ -132,12 +132,7 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
   }
 
   private _getHtmlForWebview() {
-    const appFilePath = join(
-      this._extensionUri.path,
-      "src",
-      "app",
-      "index.html"
-    );
+    const appFilePath = join(this._extensionUri.path, "public", "index.html");
 
     const appUri = this.view!.webview.asWebviewUri(
       vscode.Uri.file(join(this._extensionUri.path, "out", "app", "index.js"))
@@ -145,15 +140,14 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
     const styles: any = {
       ["__CSS__"]: this.view!.webview.asWebviewUri(
         vscode.Uri.file(
-          join(this._extensionUri.path, "src", "app", "style", "index.css")
+          join(this._extensionUri.path, "public", "style", "index.css")
         )
       ),
       ["__CODICON__"]: this.view!.webview.asWebviewUri(
         vscode.Uri.file(
           join(
             this._extensionUri.path,
-            "src",
-            "app",
+            "public",
             "style",
             "codicon",
             "codicon.css"
@@ -164,7 +158,7 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
     const getScript = (filename: string) =>
       this.view!.webview.asWebviewUri(
         vscode.Uri.file(
-          join(this._extensionUri.path, "src", "app", "script", filename)
+          join(this._extensionUri.path, "public", "script", filename)
         )
       );
     const scripts: any = {
