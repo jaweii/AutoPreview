@@ -13,7 +13,7 @@ export function getActiveFolder() {
     return workspaceFolders[0];
   }
   const activeFolder = workspaceFolders.find((folder) =>
-    activeFileName.startsWith(folder.uri.path)
+    activeFileName.startsWith(folder.uri.fsPath)
   );
   return activeFolder;
 }

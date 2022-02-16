@@ -17,7 +17,7 @@ export function activate(context: vscode.ExtensionContext) {
   });
   vscode.commands.registerCommand("AutoPreview.debug.unlock", async () => {
     getExtensionConfig().update("locked", false);
-    const activeFilePath = vscode.window.activeTextEditor?.document.uri.path;
+    const activeFilePath = vscode.window.activeTextEditor?.document.uri.fsPath;
     if (!activeFilePath) {
       return;
     }
@@ -42,7 +42,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   // 活动窗口变化
   async function onActiveTextEditorChange() {
-    const activeFilePath = vscode.window.activeTextEditor?.document.uri.path;
+    const activeFilePath = vscode.window.activeTextEditor?.document.uri.fsPath;
     if (!activeFilePath) {
       return;
     }
@@ -52,7 +52,7 @@ export function activate(context: vscode.ExtensionContext) {
     previewer.setActiveFile(updateNodeModule(activeFilePath, context));
 
     const modulePath = join(
-      getActiveFolder()!.uri.path,
+      getActiveFolder()!.uri.fsPath,
       "node_modules",
       "autopreview"
     );
@@ -78,12 +78,12 @@ function installNodeModule(context: vscode.ExtensionContext) {
   if (!getActiveFolder()) {
     return;
   }
-  const packagePath = join(getActiveFolder()!.uri.path, "package.json");
+  const packagePath = join(getActiveFolder()!.uri.fsPath, "package.json");
   if (!existsSync(packagePath)) {
     return;
   }
-  const src = join(context.extensionUri.path, ".autopreview");
-  const dst = join(getActiveFolder()!.uri.path, "node_modules", "autopreview");
+  const src = join(context.extensionUri.fsPath, ".autopreview");
+  const dst = join(getActiveFolder()!.uri.fsPath, "node_modules", "autopreview");
   copySync(src, dst);
 }
 
@@ -91,9 +91,9 @@ function updateNodeModule(
   activeFilePath: string,
   context: vscode.ExtensionContext
 ) {
-  const src = join(context.extensionUri.path, ".autopreview");
+  const src = join(context.extensionUri.fsPath, ".autopreview");
   const node_module = join(
-    getActiveFolder()!.uri.path,
+    getActiveFolder()!.uri.fsPath,
     "node_modules",
     "autopreview"
   );
