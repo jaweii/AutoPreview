@@ -17,10 +17,8 @@ export default class AutoPreviewForVue extends AutoPreview {
 
     let component
     if (components.length === 0) {
-      component = {
-        render() {
-          return 'No components found'
-        },
+      component = function () {
+        return 'No components found'
       }
     } else if (components.length === 1) {
       component = components[0].component

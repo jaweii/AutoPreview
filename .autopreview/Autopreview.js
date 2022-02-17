@@ -92,6 +92,7 @@ export default class AutoPreview {
       })
 
     await this.showComponent(components, this.componentIndex)
+    root.dataset.autopreview = ''
     if (this.currentActiveFilePath) {
       document.body.classList.add('autopreview-loaded')
       // 有时闪烁 延迟显示 
