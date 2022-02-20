@@ -2,7 +2,7 @@
 
 在 VS Code 中实时预览 React/Vue 组件
 
-![](https://github.com/jaweii/AutoPreview/blob/main/demo/img/webpack5_react.gif)
+![](https://raw.githubusercontent.com/jaweii/AutoPreview/main/demo/img/webpack5_react.gif)
 
 ## 使用方式
 
