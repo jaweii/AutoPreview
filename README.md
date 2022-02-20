@@ -1,17 +1,17 @@
 # AutoPreview
 
-在VS Code中实时预览React/Vue组件
+在 VS Code 中实时预览 React/Vue 组件
 
-![](https://github.com/jaweii/AutoPreview/blob/main/demo/img/vite_react_gif.gif)
-
+![](https://github.com/jaweii/AutoPreview/blob/main/demo/img/webpack5_react.gif)
 
 ## 使用方式
 
-1、VS Code下载并启用AutoPreview插件，启用后项目便可以引入`node_modules/autopreview`模块；
+1、VS Code 下载并启用 AutoPreview 插件，启用后项目便可以引入`node_modules/autopreview`模块；
 
 2、在项目中引入`autopreview`模块，并初始化；
 
-React项目：
+React 项目：
+
 ```
 // main.ts
 if (process.env.NODE_ENV === "development") {
@@ -21,7 +21,8 @@ if (process.env.NODE_ENV === "development") {
 }
 ```
 
-Vue 3项目：
+Vue 3 项目：
+
 ```
 // main.ts
 if (process.env.NODE_ENV === "development") {
@@ -33,7 +34,8 @@ if (process.env.NODE_ENV === "development") {
 }
 ```
 
-Vue 2项目：
+Vue 2 项目：
+
 ```
 // main.ts
 if (process.env.NODE_ENV === 'development') {
@@ -48,11 +50,10 @@ if (process.env.NODE_ENV === 'development') {
 
 > 其他项目参考`autopreview/react`和`autopreview/vue2`的实现，即通过`autopreview/index`导出的`getActiveFilePath()`方法拿到当前窗口文件路径，传给`import(PATH)`拿到当前窗口导出的组件，将目标组件挂载到页面，即可实现预览。
 
-
 3、导出`AutoPreview_`开头的函数组件：
 
+React 组件示例：
 
-React组件示例：
 ```
 import Paper from "@mui/material/Paper";
 import InputBase from "@mui/material/InputBase";
@@ -72,7 +73,8 @@ export function AutoPreview_Input() {
 }
 ```
 
-Vue3组件示例：
+Vue3 组件示例：
+
 ```
 <template>
   <v-layout>
@@ -95,7 +97,7 @@ export function AutoPreview_Header() {
 </script>
 ```
 
-Vue2组件示例
+Vue2 组件示例
 
 ```
 <template>
@@ -116,20 +118,20 @@ export function AutoPreview_Test(h) {
 </script>
 ```
 
-4、参考**配置要求**配置好Webpack/Vite，然后启动项目，在VS Code预览窗口输入localhost地址即可。
-
+4、参考**配置要求**配置好 Webpack/Vite，然后启动项目，在 VS Code 预览窗口输入 localhost 地址即可。
 
 ## 配置要求
 
 ### Vite 2
 
-1、Vite 服务器默认会忽略对 `.git/` 和 `node_modules/` 目录的监听，必须对`node_mdules/autopreview`模块也进行监听；
+1、Vite 服务器默认会忽略对  `.git/`  和  `node_modules/`  目录的监听，必须对`node_mdules/autopreview`模块也进行监听；
 
 2、被监听的包必须被排除在优化之外， 以便它能出现在依赖关系图中并触发热更新；
 
-3、Vite2默认使用React JSX， 要使用Vue JSX，需要在esbuild中配置jsx，并在组件中显性引入h : `import { h } from "vue" `;
+3、Vite2 默认使用 React JSX， 要使用 Vue JSX，需要在 esbuild 中配置 jsx，并在组件中显性引入 h : `import { h } from "vue" `;
 
 示例
+
 ```
 // vite.config.js
 export default defineConfig({
@@ -151,14 +153,15 @@ export default defineConfig({
 ```
 
 ### Webpack 5
+
 1、Webpack 5 需要禁用对`autopreview`模块缓存快照；
 
-2、如果你的webpack配置忽略了对`node_modules/`目录的监听，请排除`autopreview`模块；
+2、如果你的 webpack 配置忽略了对`node_modules/`目录的监听，请排除`autopreview`模块；
 
-3、如果你的webpack配置对`node_modules/`目录做了缓存处理，请排除`autopreview`模块；
-
+3、如果你的 webpack 配置对`node_modules/`目录做了缓存处理，请排除`autopreview`模块；
 
 示例：
+
 ```
 // config/webpack.config.js
 module.exports = function (webpackEnv) {
@@ -170,31 +173,31 @@ module.exports = function (webpackEnv) {
 }
 ```
 
-
 ### Webpack 4
+
 暂无
 
 ## CLI DEMO
 
 ### Webpack5+React (create-react-app)
 
-webpack5配置：
+webpack5 配置：
 
 初始化：
 
 导出预览：
 
-参考demo目录下的webpack5+react项目
+参考 demo 目录下的 webpack5+react 项目
 
 ### Webpack5+Vue3 (Vue CLI)
 
-webpack5配置：
+webpack5 配置：
 
 初始化：
 
 导出预览：
 
-参考demo目录下的webpack5+vue3项目
+参考 demo 目录下的 webpack5+vue3 项目
 
 ### Vite+React (Vite CLI)
 
@@ -204,17 +207,17 @@ Vite：
 
 导出预览：
 
-参考demo目录下的vite+vue3项目
+参考 demo 目录下的 vite+vue3 项目
 
 ### Webpack4+Vue2 (Vue CLI)
 
-Webpack4配置：
+Webpack4 配置：
 
 初始化：
 
 导出预览：
 
-参考demo目录下的webpack4+vue2项目
+参考 demo 目录下的 webpack4+vue2 项目
 
 ### Vite+Vue3 (Vite CLI)
 
@@ -224,32 +227,38 @@ Vite：
 
 导出预览：
 
-参考demo目录下的Vite+vue3项目
+参考 demo 目录下的 Vite+vue3 项目
 
 ### 欢迎补充
 
+## TODO
+
+· 完善常用脚手架的配置例子
+
+· 整合 VS Code Debug 功能
+
+· 测试 Windows 系统使用
 
 ## 常见问题
-1、提示autopreview模块未安装
+
+1、提示 autopreview 模块未安装
 
 尝试在预览窗口点击刷新图标，然后重启服务。
 
-2、Vue 3.0中跨文件的Provide、Reject引用可能会不支持预览。
+2、Vue 3.0 中跨文件的 Provide、Reject 引用可能会不支持预览。
 
 3、是否会让项目体积变大？
 
-Webpack和Vite的tree shaking功能会在打包时过滤掉没有使用的代码，所以AutoPreview_的代码不会影响项目体积。
+Webpack 和 Vite 的 tree shaking 功能会在打包时过滤掉没有使用的代码，所以 AutoPreview\_的代码不会影响项目体积。
 
 4、切换编辑窗口后预览窗口没有相应更新
 
-检查Webpack/Vite是不是没有监控(Watch) `node_modules/autopreview` 变化，以及缓存(Cache)是否没有排除掉`node_modules/autopreview`。
+检查 Webpack/Vite 是不是没有监控(Watch) `node_modules/autopreview` 变化，以及缓存(Cache)是否没有排除掉`node_modules/autopreview`。
 
 5、项目启动后预览窗口显示”项目未启动“
 
-检查.vscode/setting.json中配置的`AutoPreview.serverURL`是否与服务地址一致。
+检查.vscode/setting.json 中配置的`AutoPreview.serverURL`是否与服务地址一致。
 
+---
 
-----
-
-如遇到其他问题，可通过VS Code-Help-Toggle Developer Tools打开调试，查看报错，欢迎提交issue，欢迎提PR！
-
+如遇到其他问题，可通过 VS Code-Help-Toggle Developer Tools 打开调试，查看报错，欢迎提交 issue，欢迎提 PR！
