@@ -1,4 +1,8 @@
-const load = () => {
+export function getActiveFilePath() {
+  return '__active_file__'
+}
+
+function load() {
   try {
     const path = '__active_file__'
     if (!path) return undefined
@@ -9,8 +13,3 @@ const load = () => {
 };
 
 export default load
-
-
-export function getActiveFilePath() {
-  return '__active_file__'
-}

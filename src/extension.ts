@@ -95,7 +95,7 @@ function updateNodeModule(
   activeFilePath: string,
   context: vscode.ExtensionContext
 ) {
-  activeFilePath = String.raw`${activeFilePath}`;
+  activeFilePath = activeFilePath.replaceAll("\\", "\\\\"); // Windows
   const src = join(context.extensionUri.fsPath, ".autopreview");
   const node_module = join(
     getActiveFolder()!.uri.fsPath,
