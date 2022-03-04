@@ -19,9 +19,9 @@ export function ConfigPanel() {
 
   return (
     <div className=" px-5">
-      <div className="py-5">请手动启动项目并保存配置：</div>
+      <div className="py-5">Enter the local server address：</div>
       <div className="flex items-center">
-        <label className="w-20">服务地址:</label>
+        <label className="w-20">Local Server:</label>
         <input
           className="flex-auto input"
           placeholder="http://localhost:3000/"
@@ -33,7 +33,7 @@ export function ConfigPanel() {
       </div>
       <div className="text-center mt-5">
         <button className="button w-20" onClick={() => methods.save()}>
-          保存
+          Save
         </button>
       </div>
     </div>

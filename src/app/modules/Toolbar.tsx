@@ -8,7 +8,7 @@ export function Toolbar() {
       {() => {
         return (
           <div className="tool-bar w-full flex justify-between items-center h-8">
-            <div className="flex items-center">
+            <div className="flex items-center pl-1">
               <div
                 className="codicon codicon-refresh mx-1 cursor-pointer active:opacity-70"
                 onClick={() => {
@@ -22,14 +22,14 @@ export function Toolbar() {
                 <div
                   className="codicon codicon-lock mx-1 cursor-pointer active:opacity-70"
                   onClick={() => store.lock(false)}
-                  title="Lock current preview"
+                  title="Lock"
                 ></div>
               )}
               {!store.locked && (
                 <div
                   className="codicon codicon-unlock mx-1 cursor-pointer active:opacity-70"
                   onClick={() => store.lock(true)}
-                  title="Unlock current preview"
+                  title="Unlock"
                 ></div>
               )}
               {store.background === "transparent" && (

@@ -6,7 +6,7 @@ export function NotRunning() {
     <div className="pl-1 pt-1 text-center">
       <div>
         <span>{store.serverURL} </span>
-        <span>访问失败 </span>
+        <span>Access Failed </span>
       </div>
       <div className="pt-3">
         <a
@@ -14,7 +14,7 @@ export function NotRunning() {
             vscode.postMessage({ command: "REFRESH" });
           }}
         >
-          重试
+          Retry
         </a>
       </div>
     </div>

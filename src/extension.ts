@@ -78,6 +78,7 @@ function installNodeModule(context: vscode.ExtensionContext) {
   if (!getActiveFolder()) {
     return;
   }
+  // 如果没有package.json，则不注入autopreview包
   const packagePath = join(getActiveFolder()!.uri.fsPath, "package.json");
   if (!existsSync(packagePath)) {
     return;

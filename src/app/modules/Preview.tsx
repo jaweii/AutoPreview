@@ -48,7 +48,7 @@ export function Preview() {
                           display: store.packageInitiated || !store.loaded ? "none" : undefined,
                         }}
                       >
-                        <div>未初始化autopreview</div>
+                        <div>Autopreview is not initialized</div>
                       </div>
                       <div
                         className="absolute h-full w-full flex justify-center items-center"
@@ -60,7 +60,7 @@ export function Preview() {
                             : "none",
                         }}
                       >
-                        未导出预览内容
+                        No components exported
                       </div>
                     </>
                   );

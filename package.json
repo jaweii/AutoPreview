@@ -63,7 +63,7 @@
       "title": "AutoPreview",
       "properties": {
         "AutoPreview.serverURL": {
-          "$comment": "服务启动地址",
+          "$comment": "Local Server URL",
           "type": "string",
           "default": ""
         },
@@ -73,12 +73,12 @@
           "default": "yarn"
         },
         "AutoPreview.locked": {
-          "$comment": "是否锁定",
+          "$comment": "Lock/Unlock",
           "type": "boolean",
           "default": false
         },
         "AutoPreview.background": {
-          "$comment": "背景色",
+          "$comment": "Background Color",
           "type": "string",
           "default": "transparent"
         }
