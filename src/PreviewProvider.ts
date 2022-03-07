@@ -3,6 +3,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { getExtensionConfig } from "./utils/vscode";
 import * as http from "http";
+import output from "./utils/output";
 
 export class PreviewProvider implements vscode.WebviewViewProvider {
   init(_extensionUri: vscode.Uri) {
@@ -32,7 +33,7 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
     };
     webviewView.webview.onDidReceiveMessage(
       async ({ command, data }: { command: string; data: any }) => {
-        console.log("[extension] receive a message:", command, data);
+        console.log("[EXTENSION] receive a message:", command, data);
         switch (command) {
           case "APP_MOUNTED":
             this.view?.webview.postMessage({
@@ -74,8 +75,30 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
           case "SET_BACKGROUND":
             getExtensionConfig().update("background", data);
             break;
+          case "CONSOLE":
+            const args: any[] = JSON.parse(data.data);
+            for (const line of args) {
+              if (typeof line === "string") {
+                // 过滤输出
+                if (
+                  /^(\[PACKAGE\]|\[EXTENSION\]|\[EXTENSION\/VIEW\])/.test(line)
+                ) {
+                  break;
+                }
+                const index = args.indexOf(line);
+                if (index === 0) {
+                  output.appendLine(`[${data.type}] ${line}`);
+                } else {
+                  output.appendLine(`${line}`);
+                }
+              } else {
+                output.appendLine(JSON.stringify(line));
+              }
+              output.show();
+            }
+            break;
           default:
-            console.log("[extension] Ignore command:", command);
+            console.log("[EXTENSION] Ignore command:", command);
             break;
         }
       }
@@ -89,9 +112,10 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
   }
 
   setActiveFile(activeFile?: string) {
-    if (this.activeFile !== activeFile) {
-      this.componentIndex = 0;
+    if (!activeFile || this.activeFile === activeFile) {
+      return;
     }
+    this.componentIndex = 0;
     this.activeFile = activeFile;
     this.view?.webview.postMessage({
       command: "SET_COMPONENT_INDEX",

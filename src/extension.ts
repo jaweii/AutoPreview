@@ -18,10 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
   vscode.commands.registerCommand("AutoPreview.debug.unlock", async () => {
     getExtensionConfig().update("locked", false);
     const activeFilePath = vscode.window.activeTextEditor?.document.uri.fsPath;
-    if (!activeFilePath) {
-      return;
-    }
-    previewer.setActiveFile(updateNodeModule(activeFilePath, context));
+    previewer.setActiveFile(updateNodeModule(activeFilePath!, context));
   });
 
   const disposable = vscode.window.registerWebviewViewProvider(
@@ -43,13 +40,10 @@ export function activate(context: vscode.ExtensionContext) {
   // 活动窗口变化
   async function onActiveTextEditorChange() {
     const activeFilePath = vscode.window.activeTextEditor?.document.uri.fsPath;
-    if (!activeFilePath) {
-      return;
-    }
     if (getExtensionConfig().get("locked")) {
       return;
     }
-    previewer.setActiveFile(updateNodeModule(activeFilePath, context));
+    previewer.setActiveFile(updateNodeModule(activeFilePath!, context));
 
     const modulePath = join(
       getActiveFolder()!.uri.fsPath,
@@ -96,6 +90,9 @@ function updateNodeModule(
   activeFilePath: string,
   context: vscode.ExtensionContext
 ) {
+  if (!activeFilePath || activeFilePath.split(/(\\|\/)/).length <= 1) {
+    return;
+  }
   activeFilePath = activeFilePath.replaceAll("\\", "\\\\"); // Windows
   const src = join(context.extensionUri.fsPath, ".autopreview");
   const node_module = join(

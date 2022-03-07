@@ -43,23 +43,21 @@ class Store {
 
   init() {
     window.addEventListener("message", (e) => {
-      console.log("[extension/view] received a message", e.data);
+      console.log("[EXTENSION/VIEW] received a message", e.data);
       switch (e.data.command) {
         case "LOAD_CONFIG":
           // activeFile: string;
           // componentIndex: number;
           // packageManager: "yarn" | "npm";
           // serviceAvailable: boolean;
-          const {
-            serviceAvailable,
-            activeFile,
-            componentIndex,
-            ...config
-          } = e.data.data;
-          this.config = config;
-          this.serverURLAvailable = serviceAvailable;
-          this.activeFile = activeFile;
-          this.componentIndex = componentIndex;
+          const { serviceAvailable, activeFile, componentIndex, ...config } =
+            e.data.data;
+          runInAction(() => {
+            this.config = config;
+            this.serverURLAvailable = serviceAvailable;
+            this.activeFile = activeFile;
+            this.componentIndex = componentIndex;
+          });
           break;
         case "SET_COMPONENT_LIST":
           runInAction(() => {
@@ -96,10 +94,15 @@ class Store {
             command: "ERROR",
             data: e.data.data,
           });
-
+          break;
+        case "CONSOLE":
+          this.vscode.postMessage({
+            command: "CONSOLE",
+            data: e.data,
+          });
           break;
         default:
-          console.log("[extension/view] ignore command:", e.data.command);
+          console.log("[EXTENSION/VIEW] ignore command:", e.data.command);
           break;
       }
     });

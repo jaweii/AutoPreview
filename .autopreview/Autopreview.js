@@ -59,6 +59,7 @@ export default class AutoPreview {
 
       initiated = true
       window.parent.postMessage({ command: 'PACKAGE_INITIATED' }, '*')
+      this.captureOutput()
     } else {
       document.body.classList.add('autopreview-loaded')
     }
@@ -126,6 +127,25 @@ export default class AutoPreview {
       console.warn(err.message)
     }
     return
+  }
+
+  /**
+   * 拦截console内容，打印到vscode output
+   */
+  captureOutput() {
+    const methods = ['log', 'info', 'warn', 'error']
+    methods.forEach(name => {
+      const cb = console[name]
+      console[name] = (...args) => {
+        cb(...args)
+        window.parent.postMessage({
+          command: 'CONSOLE',
+          type: name,
+          data: JSON.stringify(args)
+        }, '*')
+      }
+    })
+
   }
 }
 

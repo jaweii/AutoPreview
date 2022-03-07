@@ -16,7 +16,6 @@ export default function App() {
   return (
     <Observer>
       {() => {
-        console.log(store);
         if (!store.config?.serverURL) {
           return <ConfigPanel />;
         } else if (!store.serverURLAvailable) {
