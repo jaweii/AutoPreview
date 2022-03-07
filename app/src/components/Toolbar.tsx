@@ -1,8 +1,15 @@
-// @ts-nocheck
+import React from "react";
+import { Observer } from "mobx-react";
+import store from "../../store";
+import {
+  CIRCLE_LARGE_FILLED,
+  COLOR_MODE,
+  LOCK,
+  REFRESH,
+  UNLOCK,
+} from "./icons";
 
-export function Toolbar() {
-  const { store } = exports;
-  const { Observer } = mobxReactLite;
+export default function Toolbar() {
   return (
     <Observer>
       {() => {
@@ -17,34 +24,44 @@ export function Toolbar() {
                   });
                 }}
                 title="Refresh"
-              ></div>
+              >
+                {REFRESH}
+              </div>
               {store.locked && (
                 <div
                   className="codicon codicon-lock mx-1 cursor-pointer active:opacity-70"
                   onClick={() => store.lock(false)}
                   title="Lock"
-                ></div>
+                >
+                  {LOCK}
+                </div>
               )}
               {!store.locked && (
                 <div
                   className="codicon codicon-unlock mx-1 cursor-pointer active:opacity-70"
                   onClick={() => store.lock(true)}
                   title="Unlock"
-                ></div>
+                >
+                  {UNLOCK}
+                </div>
               )}
-              {store.background === "transparent" && (
+              {store.config.background === "transparent" && (
                 <div
                   className="codicon codicon-color-mode mx-1 cursor-pointer active:opacity-70"
                   onClick={() => store.setBG("white")}
                   title="Set white background"
-                ></div>
+                >
+                  {COLOR_MODE}
+                </div>
               )}
-              {store.background === "white" && (
+              {store.config.background === "white" && (
                 <div
                   className="codicon codicon-circle-large-filled mx-1 cursor-pointer active:opacity-70"
                   onClick={() => store.setBG("transparent")}
                   title="Set transparent background"
-                ></div>
+                >
+                  {CIRCLE_LARGE_FILLED}
+                </div>
               )}
             </div>
             <div>

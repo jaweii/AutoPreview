@@ -1,8 +1,7 @@
-// @ts-nocheck
+import React, { useState } from "react";
+import store from "../../store";
 
-export function ConfigPanel() {
-  const { useState } = React;
-  const { store } = exports;
+export default function ConfigPanel() {
   const [state, setState] = useState({
     serverURL: "",
   });
@@ -18,15 +17,16 @@ export function ConfigPanel() {
   };
 
   return (
-    <div className=" px-5">
+    <div className="px-5 w-full">
       <div className="py-5">Enter the local server address：</div>
       <div className="flex items-center">
-        <label className="w-20">Local Server:</label>
+        <label className="w-32">Local Server</label>
         <input
           className="flex-auto input"
           placeholder="http://localhost:3000/"
           value={state.serverURL}
           onInput={(e) => {
+            // @ts-ignore
             setState({ ...state, serverURL: e.target.value });
           }}
         ></input>

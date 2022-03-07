@@ -1,11 +1,10 @@
-// @ts-nocheck
+import React from "react";
+import { runInAction } from "mobx";
+import { Observer } from "mobx-react";
+import store from "../../store";
+import Toolbar from "./Toolbar";
 
-export function Preview() {
-  const { store, Toolbar } = exports;
-  const { Observer } = mobxReactLite;
-  const { useEffect } = React;
-  const { runInAction } = mobx;
-
+export default function Preview() {
   const methods = {
     onLoad(e) {
       store.postMessage({
@@ -22,7 +21,7 @@ export function Preview() {
     },
   };
 
-  const iframeUrl = `${store.serverURL}?AutoPreview=true`;
+  const iframeUrl = `${store.config!.serverURL}?AutoPreview=true`;
   return (
     <Observer>
       {() => {
@@ -31,9 +30,9 @@ export function Preview() {
             <div
               className="w-full h-full relative"
               style={{
-                backgroundColor: store.background,
+                backgroundColor: store.config.background,
                 color:
-                  store.background === "transparent"
+                  store.config.background === "transparent"
                     ? "rgba(255,255,255,0.7)"
                     : "rgba(0,0,0,0.7)",
               }}
@@ -45,7 +44,10 @@ export function Preview() {
                       <div
                         className="absolute h-full w-full flex justify-center flex-col items-center"
                         style={{
-                          display: store.packageInitiated || !store.loaded ? "none" : undefined,
+                          display:
+                            store.packageInitiated || !store.loaded
+                              ? "none"
+                              : undefined,
                         }}
                       >
                         <div>Autopreview is not initialized</div>
@@ -75,9 +77,7 @@ export function Preview() {
                       src={iframeUrl}
                       frameBorder="0"
                       style={{
-                        visibility: store.mounted
-                          ? undefined
-                          : "hidden",
+                        visibility: store.mounted ? undefined : "hidden",
                       }}
                       onLoad={methods.onLoad}
                     ></iframe>

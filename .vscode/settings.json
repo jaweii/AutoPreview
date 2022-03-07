@@ -10,6 +10,8 @@
     "typescript.tsc.autoDetect": "off",
     "cSpell.words": [
         "autopreview",
+        "codicon",
+        "codicons",
         "xhttp"
     ]
 }

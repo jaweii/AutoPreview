@@ -1,8 +1,7 @@
 import * as vscode from "vscode";
-import { existsSync, readFileSync } from "fs";
+import { readFileSync } from "fs";
 import { join } from "path";
 import { getExtensionConfig } from "./utils/vscode";
-import axios from "axios";
 import * as http from "http";
 
 export class PreviewProvider implements vscode.WebviewViewProvider {
@@ -35,7 +34,17 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
       async ({ command, data }: { command: string; data: any }) => {
         console.log("[extension] receive a message:", command, data);
         switch (command) {
-          case "APP_LOADED":
+          case "APP_MOUNTED":
+            this.view?.webview.postMessage({
+              command: "LOAD_CONFIG",
+              data: {
+                serverURL: this.serverURL,
+                serviceAvailable: this.serviceAvailable,
+                activeFile: this.activeFile,
+                componentIndex: this.componentIndex,
+                ...JSON.parse(JSON.stringify(getExtensionConfig())),
+              },
+            });
             break;
           case "UPDATE_CONFIG":
             for (const key in data) {
@@ -132,65 +141,13 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
   }
 
   private _getHtmlForWebview() {
-    const appFilePath = join(this._extensionUri.fsPath, "public", "index.html");
-
-    const appUri = this.view!.webview.asWebviewUri(
-      vscode.Uri.file(join(this._extensionUri.fsPath, "out", "app", "index.js"))
+    const appFilePath = join(
+      this._extensionUri.fsPath,
+      "app",
+      "dist",
+      "index.html"
     );
-    const styles: any = {
-      ["__CSS__"]: this.view!.webview.asWebviewUri(
-        vscode.Uri.file(
-          join(this._extensionUri.fsPath, "public", "style", "index.css")
-        )
-      ),
-      ["__CODICON__"]: this.view!.webview.asWebviewUri(
-        vscode.Uri.file(
-          join(
-            this._extensionUri.fsPath,
-            "public",
-            "style",
-            "codicon",
-            "codicon.css"
-          )
-        )
-      ),
-    };
-    const getScript = (filename: string) =>
-      this.view!.webview.asWebviewUri(
-        vscode.Uri.file(
-          join(this._extensionUri.fsPath, "public", "script", filename)
-        )
-      );
-    const scripts: any = {
-      ["__SCRIPT_REACT__"]: getScript("react.development@17.0.2.js"),
-      ["__SCRIPT_REACT_DOM__"]: getScript("react-dom.development@17.js"),
-      ["__SCRIPT_BABEL__"]: getScript("babel.min@6.26.0.js"),
-      ["__SCRIPT_MOBX__"]: getScript("mobx.umd.development@6.3.13.js"),
-      ["__SCRIPT_MOBX_REACT__"]: getScript(
-        "mobxreactlite.umd.development@3.2.3.js"
-      ),
-      ["__SCRIPT_TAILWIND__"]: getScript("tailwind@3.0.14.js"),
-    };
-    let html = readFileSync(appFilePath, "utf-8");
-    html = html.replace("__SERVER_URL__", this.serverURL || "");
-    html = html.replace(
-      "__SERVER_URL_AVAILABLE__",
-      this.serviceAvailable ? "true" : "false"
-    );
-    html = html.replace("__VS_CONFIG__", JSON.stringify(getExtensionConfig()));
-    Object.keys(styles).forEach((key) => {
-      html = html.replace(key, styles[key].toString());
-    });
-    Object.keys(scripts).forEach((key) => {
-      html = html.replace(key, scripts[key]);
-    });
-    html = html.replaceAll(
-      "__APP_ROOT__",
-      `${appUri.toString().replace("/index.js", "")}`
-    );
-    html = html.replace("__ACTIVE_FILE__", this.activeFile || "");
-    html = html.replace("__COMPONENT_INDEX__", this.componentIndex.toString());
-    return html;
+    return readFileSync(appFilePath, "utf-8");
   }
 
   dispose() {}

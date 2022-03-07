@@ -1,17 +1,29 @@
-const { makeAutoObservable, runInAction } = (window as any).mobx;
+import { makeAutoObservable, runInAction } from "mobx";
+
+interface Config {
+  background: "transparent" /** 预览窗口背景色 */ | "white";
+  /** 是否锁定窗口组件 */
+  locked: boolean;
+  /** 用户项目服务地址 */
+  serverURL: string;
+}
 
 class Store {
   constructor() {
-    this.init();
     makeAutoObservable(this);
+    this.init();
   }
 
-  /** 用户项目服务地址 */
-  serverURL = "";
+  // @ts-ignore
+  vscode = acquireVsCodeApi();
+
+  /** 是否就绪 */
+  ready = false;
+
   /** 用户活动窗口文件路径 */
   activeFile = "";
   /** vscode 插件配置 */
-  config = {};
+  config?: Config = undefined;
 
   /** 用户活动窗口导出的组件列表 */
   components: string[] = [];
@@ -25,32 +37,30 @@ class Store {
   /** 组件是否已挂载 */
   mounted = false;
 
-  /** 是否锁定窗口组件 */
   locked = false;
   /** iframe是否已加载 */
   loaded = false;
-  /** 预览窗口背景色 */
-  background = "white";
 
   init() {
-    const {
-      serverURL,
-      serverURLAvailable,
-      activeFile,
-      componentIndex,
-      config,
-    } = (window as any).template;
-    this.serverURL = serverURL;
-    this.serverURLAvailable = serverURLAvailable;
-    this.activeFile = activeFile;
-    this.componentIndex = componentIndex;
-    this.config = config;
-    this.locked = config.locked ?? this.locked;
-    this.background = config.background ?? this.background;
-
     window.addEventListener("message", (e) => {
       console.log("[extension/view] received a message", e.data);
       switch (e.data.command) {
+        case "LOAD_CONFIG":
+          // activeFile: string;
+          // componentIndex: number;
+          // packageManager: "yarn" | "npm";
+          // serviceAvailable: boolean;
+          const {
+            serviceAvailable,
+            activeFile,
+            componentIndex,
+            ...config
+          } = e.data.data;
+          this.config = config;
+          this.serverURLAvailable = serviceAvailable;
+          this.activeFile = activeFile;
+          this.componentIndex = componentIndex;
+          break;
         case "SET_COMPONENT_LIST":
           runInAction(() => {
             this.components = e.data.data;
@@ -82,8 +92,7 @@ class Store {
           });
           break;
         case "ERROR":
-          // @ts-ignore
-          vscode.postMessage({
+          this.vscode.postMessage({
             command: "ERROR",
             data: e.data.data,
           });
@@ -112,23 +121,22 @@ class Store {
     this.locked = lock;
   }
 
-  setBG(background: string) {
+  setBG(background: "white" | "transparent") {
     this.postMessage({
       command: "SET_BACKGROUND",
       data: background,
     });
-    this.background = background;
+    this.config.background = background;
   }
 
   postMessage(data: any) {
-    if (this.serverURL && this.serverURLAvailable) {
+    if (this.config?.serverURL && this.serverURLAvailable) {
       const iframe = document.querySelector("#iframe");
       // @ts-ignore
       iframe?.contentWindow?.postMessage(data, "*");
     }
-    // @ts-ignore
-    vscode.postMessage(data);
+    this.vscode.postMessage(data);
   }
 }
 
-exports.store = new Store();
+export default new Store();
