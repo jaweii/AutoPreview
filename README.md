@@ -244,7 +244,7 @@ Refer to [Vite+vue3](/demo)
 
 ## Q&A
 
-1.  `autopreview` not installed
+1. "`autopreview` is not installed"
 
 Try click refresh button in preview panel, then restart your project.
 
