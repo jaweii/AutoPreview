@@ -1,16 +1,18 @@
 # AutoPreview
 
-在 VS Code 中实时预览 React/Vue 组件
+[中文](https://github.com/jaweii/AutoPreview/blob/main/README-zh.md) | [English](https://github.com/jaweii/AutoPreview/blob/main/README.md)
+
+Preview React/Vue components in VS Code.
 
 ![](https://raw.githubusercontent.com/jaweii/AutoPreview/main/demo/img/webpack5_react.gif)
 
-## 使用方式
+## Usage
 
-1、VS Code 下载并启用 AutoPreview 插件，启用后项目便可以引入`node_modules/autopreview`模块；
+1. Download and enable AutoPreview extension in VS Code, after enabling, you can import `autopreview` package in your React/Vue project;
 
-2、在项目中引入`autopreview`模块，并初始化；
+2. import `autopreview` package and initialize it;
 
-React 项目：
+React project:
 
 ```
 // main.ts
@@ -21,7 +23,7 @@ if (process.env.NODE_ENV === "development") {
 }
 ```
 
-Vue 3 项目：
+Vue 3 project:
 
 ```
 // main.ts
@@ -34,7 +36,7 @@ if (process.env.NODE_ENV === "development") {
 }
 ```
 
-Vue 2 项目：
+Vue 2 project:
 
 ```
 // main.ts
@@ -48,34 +50,30 @@ if (process.env.NODE_ENV === 'development') {
 }
 ```
 
-> 其他项目参考`autopreview/react`和`autopreview/vue2`的实现，即通过`autopreview/index`导出的`getActiveFilePath()`方法拿到当前窗口文件路径，传给`import(PATH)`拿到当前窗口导出的组件，将目标组件挂载到页面，即可实现预览。
+> Other projects refer to the implementation of `autopreview/react` or `autopreview/vue2`, that is, call `getActiveFilePath()` method exported by `autopreview/index` to get the file path in active text editor, and pass it to `import(filepath)` to get components exported in the file, those components can be previewed by mounting to page.
 
-3、导出`AutoPreview_`开头的函数组件：
+3. Export functional components whose names start with `AutoPreview_`;
 
-React 组件示例：
+Preview React component:
 
 ```
-import Paper from "@mui/material/Paper";
-import InputBase from "@mui/material/InputBase";
-export default function Input() {
-  return (
-    <Paper
-      component="form"
-      sx={{ p: "2px 4px", display: "flex", alignItems: "center", width: 200 }}
-    >
-      <InputBase sx={{ ml: 1, flex: 1 }} placeholder="Phone" />
-    </Paper>
-  );
+// component_list.tsx
+import React from "react";
+import { Button } from "antd";
+
+export function AutoPreview_Button() {
+  return (<Button onClick={() => console.log("click")}> CLICK </Button>);
 }
 
-export function AutoPreview_Input() {
-  return (  <div style=“background:blue;width:100%;”>  <Input />  </div> );
+export function AutoPreview_Button_primary() {
+  return (<Button type="primary" > PRIMARY </Button>);
 }
 ```
 
-Vue3 组件示例：
+Preview Vue3 component:
 
 ```
+// Header.vue
 <template>
   <v-layout>
     <v-app-bar>
@@ -84,7 +82,7 @@ Vue3 组件示例：
   </v-layout>
 </template>
 <script lang="tsx">
-// Vite2默认使用React JSX， 要使用Vue JSX，需要在esbuild中配置jsx，并在组件中显性引入h :`import { h } from "vue" `
+// Vite 2 uses React JSX by default, to use Vue JSX, you need to configure jsx in esbuild, and explicitly import h `import { h } from 'vue'`
 import { defineComponent, h } from "vue";
 const Header = defineComponent({
   props: {  title: String }
@@ -97,9 +95,7 @@ export function AutoPreview_Header() {
 </script>
 ```
 
-Vue2 组件示例
-
-注意传入h参数，否则会报错：
+Preview Vue2 component:
 
 ```
 <template>
@@ -114,40 +110,41 @@ const Header = {
 };
 export default Header;
 
+// Note that `h` parameter must be declared
 export function AutoPreview_Test(h) {
   return <Header title="Title" />;
 }
 </script>
 ```
 
-4、参考**配置要求**配置好 Webpack/Vite，然后启动项目，在 VS Code 预览窗口输入 localhost 地址即可。
+4. Refer to **Webpack/Vite Configuration** to configure Webpack/Vite, then start project, and save localhost address in preview panel;
 
-## 配置要求
+## Webpack/Vite Configuration
 
 ### Vite 2
 
-1、Vite 服务器默认会忽略对  `.git/`  和  `node_modules/`  目录的监听，必须对`node_mdules/autopreview`模块也进行监听；
+1. Vite will not watch `node_modules` directory by default, but `node_modules/autopreview` package must be watched;
 
-2、被监听的包必须被排除在优化之外， 以便它能出现在依赖关系图中并触发热更新；
+2. The watched package must be excluded from optimization, so that it can appear in the dependency graph and trigger hot reload.
 
-3、Vite2 默认使用 React JSX， 要使用 Vue JSX，需要在 esbuild 中配置 jsx，并在组件中显性引入 h : `import { h } from "vue" `;
+3. Vite 2 use React JSX by default, to use Vue JSX, you need to configure jsx in esbuild, and explicitly import h: `import { h } from 'vue'`;
 
-示例
+Example:
 
 ```
 // vite.config.js
 export default defineConfig({
   server: {
     watch: {
-      // 对autopreview模块进行监听
+      // Watch autopreview package
       ignored: ["!**/node_modules/autopreview/**"],
     },
   },
   optimizeDeps: {
-    // 被监听的包必须被排除在优化之外
+    // watched package must be excluded
     exclude: ["autopreview"],
   },
-  esbuild: {   // Vue项目要使用Vue JSX，需要在esbuild中配置jsx
+  esbuild: {   // If you want to use Vue JSX
     jsxFactory: "h",
     jsxFragment: "Fragment",
   },
@@ -156,13 +153,11 @@ export default defineConfig({
 
 ### Webpack 5
 
-1、Webpack 5 需要禁用对`autopreview`模块缓存快照；
+1. Webpack 5 needs to disable snapshot for `autopreview` package;
 
-2、如果你的 webpack 配置忽略了对`node_modules/`目录的监听，请排除`autopreview`模块；
+2. IF your Webpack configured to cache/unwatch `node_modules` directory, you need to exclude `autopreview` package;
 
-3、如果你的 webpack 配置对`node_modules/`目录做了缓存处理，请排除`autopreview`模块；
-
-示例：
+Example:
 
 ```
 // config/webpack.config.js
@@ -177,93 +172,94 @@ module.exports = function (webpackEnv) {
 
 ### Webpack 4
 
-暂无
+//
 
 ## CLI DEMO
 
 ### Webpack5+React (create-react-app)
 
-webpack5 配置：
+webpack5 Configuration:
 
-初始化：
+Initialization:
 
-导出预览：
+Export preview:
 
-参考 demo 目录下的 webpack5+react 项目
+Refer to [demo/webpack5+react](/demo)
 
 ### Webpack5+Vue3 (Vue CLI)
 
-webpack5 配置：
+webpack5 Configuration:
 
-初始化：
+Initialization:
 
-导出预览：
+Export preview:
 
-参考 demo 目录下的 webpack5+vue3 项目
+Refer to [demo/webpack5+vue3](/demo)
 
 ### Vite+React (Vite CLI)
 
 Vite：
 
-初始化：
+Initialization
 
-导出预览：
+Export preview:
 
-参考 demo 目录下的 vite+vue3 项目
+Refer to [vite+vue3](/demo)
 
 ### Webpack4+Vue2 (Vue CLI)
 
-Webpack4 配置：
+Webpack4 Configuration:
 
-初始化：
+Initialization:
 
-导出预览：
+Export preview:
 
-参考 demo 目录下的 webpack4+vue2 项目
+Refer to [webpack4+vue2](/demo)
 
 ### Vite+Vue3 (Vite CLI)
 
 Vite：
 
-初始化：
+Initialization
 
-导出预览：
+Export preview:
 
-参考 demo 目录下的 Vite+vue3 项目
+Refer to [Vite+vue3](/demo)
 
-### 欢迎补充
+### Welcome PR
 
 ## TODO
-· 英文版
 
-· 完善常用脚手架的配置例子 
+· ~~English Doc~~
 
-· 整合 VS Code Debug 功能 
+· Copy component code to clipboard in preview panel
 
-· 测试 Windows 系统使用 
+· Complete popular CLI Demo
 
-· 需要个插件logo 
+· Integrate VS Code Debug function
 
-## 常见问题
+· Test usage in Windows
 
-1、提示 autopreview 模块未安装
+· Extension logo
 
-尝试在预览窗口点击刷新图标，然后重启服务。
+## Q&A
 
-2、Vue 3.0 中跨文件的 Provide、Reject 引用可能会不支持预览。
+1.  `autopreview` not installed
 
-3、是否会让项目体积变大？
+Try click refresh button in preview panel, then restart your project.
 
-Webpack 和 Vite 的 tree shaking 功能会在打包时过滤掉没有使用的代码，所以 AutoPreview\_的代码不会影响项目体积。
+2. In Vue 3, components using `Provide` or `Reject` may not be previewed.
 
-4、切换编辑窗口后预览窗口没有相应更新
+3. Will it make project bigger?
 
-检查 Webpack/Vite 是不是没有监控(Watch) `node_modules/autopreview` 变化，以及缓存(Cache)是否没有排除掉`node_modules/autopreview`。
+Webpack and Vite have tree shaking feature, unused components will not be bundled to production.
 
-5、项目启动后预览窗口显示”项目未启动“
+4. Preview panel is not updated after switch active text editor
 
-检查.vscode/setting.json 中配置的`AutoPreview.serverURL`是否与服务地址一致。
+Make sure your Webpack/Vite is Watching `node_modules/autopreview` directory, and exclude `node_modules/autopreview` directory from Cache.
+
+5. Preview panel shows "Access failed"
+
+Check `AutoPreview.serverURL` in `.vscode/setting.json` is the same as your dev server address.
 
 ---
-
-如遇到其他问题，可通过 VS Code-Help-Toggle Developer Tools 打开调试，查看报错，欢迎提交 issue，欢迎提 PR！

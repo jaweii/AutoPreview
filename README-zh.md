@@ -1,5 +1,7 @@
 # AutoPreview
 
+[中文](https://github.com/jaweii/AutoPreview/blob/main/README-zh.md) | [English](https://github.com/jaweii/AutoPreview/blob/main/README.md)
+
 在 VS Code 中实时预览 React/Vue 组件
 
 ![](https://raw.githubusercontent.com/jaweii/AutoPreview/main/demo/img/webpack5_react.gif)
@@ -55,21 +57,11 @@ if (process.env.NODE_ENV === 'development') {
 React 组件示例：
 
 ```
-import Paper from "@mui/material/Paper";
-import InputBase from "@mui/material/InputBase";
-export default function Input() {
-  return (
-    <Paper
-      component="form"
-      sx={{ p: "2px 4px", display: "flex", alignItems: "center", width: 200 }}
-    >
-      <InputBase sx={{ ml: 1, flex: 1 }} placeholder="Phone" />
-    </Paper>
-  );
-}
+import React from "react";
+import { Button } from "antd";
 
-export function AutoPreview_Input() {
-  return (  <div style=“background:blue;width:100%;”>  <Input />  </div> );
+export function AutoPreview_Button1() {
+  return (<Button onClick={() => console.log("click")}> CLICK </Button>);
 }
 ```
 
@@ -99,8 +91,6 @@ export function AutoPreview_Header() {
 
 Vue2 组件示例
 
-注意传入h参数，否则会报错：
-
 ```
 <template>
   <v-app-bar>
@@ -114,6 +104,7 @@ const Header = {
 };
 export default Header;
 
+// 注意要声明h参数，否则会报错
 export function AutoPreview_Test(h) {
   return <Header title="Title" />;
 }
@@ -234,7 +225,9 @@ Vite：
 ### 欢迎补充
 
 ## TODO
-· 英文版
+· ~~英文版~~
+
+· 预览面板中，复制组件用例代码
 
 · 完善常用脚手架的配置例子 
 
@@ -242,7 +235,7 @@ Vite：
 
 · 测试 Windows 系统使用 
 
-· 需要个插件logo 
+· 插件logo 
 
 ## 常见问题
 
@@ -260,7 +253,7 @@ Webpack 和 Vite 的 tree shaking 功能会在打包时过滤掉没有使用的�
 
 检查 Webpack/Vite 是不是没有监控(Watch) `node_modules/autopreview` 变化，以及缓存(Cache)是否没有排除掉`node_modules/autopreview`。
 
-5、项目启动后预览窗口显示”项目未启动“
+5、项目启动后预览窗口显示”Access failed“
 
 检查.vscode/setting.json 中配置的`AutoPreview.serverURL`是否与服务地址一致。
 
