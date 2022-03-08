@@ -3,10 +3,7 @@
   "displayName": "AutoPreview",
   "publisher": "jawei",
   "description": "Preview React/Vue components in VS Code",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/jaweii/AutoPreview"
-  },
+  "repository": "https://github.com/jaweii/AutoPreview",
   "keywords": [
     "Preview",
     "React",

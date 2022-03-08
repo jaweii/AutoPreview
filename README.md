@@ -1,4 +1,4 @@
-# AutoPreview
+# [AutoPreview](https://github.com/jaweii/AutoPreview)
 
 [中文](https://github.com/jaweii/AutoPreview/blob/main/README-zh.md) | [English](https://github.com/jaweii/AutoPreview/blob/main/README.md)
 
@@ -236,7 +236,7 @@ Refer to [Vite+vue3](/demo)
 
 · Complete popular CLI Demo
 
-· Integrate VS Code Debug function
+· Integrate VS Code Debug
 
 · Test usage in Windows
 
