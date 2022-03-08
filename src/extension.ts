@@ -77,7 +77,7 @@ function installNodeModule(context: vscode.ExtensionContext) {
   if (!existsSync(packagePath)) {
     return;
   }
-  const src = join(context.extensionUri.fsPath, ".autopreview");
+  const src = join(context.extensionUri.fsPath, "package");
   const dst = join(
     getActiveFolder()!.uri.fsPath,
     "node_modules",
@@ -94,7 +94,7 @@ function updateNodeModule(
     return;
   }
   activeFilePath = activeFilePath.replaceAll("\\", "\\\\"); // Windows
-  const src = join(context.extensionUri.fsPath, ".autopreview");
+  const src = join(context.extensionUri.fsPath, "package");
   const node_module = join(
     getActiveFolder()!.uri.fsPath,
     "node_modules",

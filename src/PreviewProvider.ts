@@ -31,79 +31,77 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
       enableForms: true,
       enableCommandUris: true,
     };
-    webviewView.webview.onDidReceiveMessage(
-      async ({ command, data }: { command: string; data: any }) => {
-        console.log("[EXTENSION] receive a message:", command, data);
-        switch (command) {
-          case "APP_MOUNTED":
-            this.view?.webview.postMessage({
-              command: "LOAD_CONFIG",
-              data: {
-                serverURL: this.serverURL,
-                serviceAvailable: this.serviceAvailable,
-                activeFile: this.activeFile,
-                componentIndex: this.componentIndex,
-                ...JSON.parse(JSON.stringify(getExtensionConfig())),
-              },
-            });
-            break;
-          case "UPDATE_CONFIG":
-            for (const key in data) {
-              await getExtensionConfig().update(key, data[key]);
-            }
-            this.loadConfig();
-            this.refreshPage({ force: true });
-            break;
-          case "SET_COMPONENT_INDEX":
-            this.componentIndex = data;
-            break;
-          case "REFRESH":
-            this.refreshPage({
-              force: true,
-            });
-            break;
-          case "LOCK":
-            if (data) {
-              vscode.commands.executeCommand("AutoPreview.debug.lock");
-            } else {
-              vscode.commands.executeCommand("AutoPreview.debug.unlock");
-            }
-            break;
-          case "ERROR":
-            vscode.window.showErrorMessage(data);
-            break;
-          case "SET_BACKGROUND":
-            getExtensionConfig().update("background", data);
-            break;
-          case "CONSOLE":
-            const args: any[] = JSON.parse(data.data);
-            for (const line of args) {
-              if (typeof line === "string") {
-                // 过滤输出
-                if (
-                  /^(\[PACKAGE\]|\[EXTENSION\]|\[EXTENSION\/VIEW\])/.test(line)
-                ) {
-                  break;
-                }
-                const index = args.indexOf(line);
-                if (index === 0) {
-                  output.appendLine(`[${data.type}] ${line}`);
-                } else {
-                  output.appendLine(`${line}`);
-                }
-              } else {
-                output.appendLine(JSON.stringify(line));
-              }
-              output.show();
-            }
-            break;
-          default:
-            console.log("[EXTENSION] Ignore command:", command);
-            break;
-        }
-      }
-    );
+    webviewView.webview.onDidReceiveMessage(this.onReceiveMessage.bind(this));
     this.refreshPage({ force: true });
+  }
+
+  async onReceiveMessage({ command, data }: { command: string; data: any }) {
+    console.log("[EXTENSION] receive a message:", command, data);
+    switch (command) {
+      case "APP_MOUNTED":
+        this.view?.webview.postMessage({
+          command: "LOAD_CONFIG",
+          data: {
+            serverURL: this.serverURL,
+            serviceAvailable: this.serviceAvailable,
+            activeFile: this.activeFile,
+            componentIndex: this.componentIndex,
+            ...JSON.parse(JSON.stringify(getExtensionConfig())),
+          },
+        });
+        break;
+      case "UPDATE_CONFIG":
+        for (const key in data) {
+          await getExtensionConfig().update(key, data[key]);
+        }
+        this.loadConfig();
+        this.refreshPage({ force: true });
+        break;
+      case "SET_COMPONENT_INDEX":
+        this.componentIndex = data;
+        break;
+      case "REFRESH":
+        this.refreshPage({
+          force: true,
+        });
+        break;
+      case "LOCK":
+        if (data) {
+          vscode.commands.executeCommand("AutoPreview.debug.lock");
+        } else {
+          vscode.commands.executeCommand("AutoPreview.debug.unlock");
+        }
+        break;
+      case "ERROR":
+        vscode.window.showErrorMessage(data);
+        break;
+      case "SET_BACKGROUND":
+        getExtensionConfig().update("background", data);
+        break;
+      case "CONSOLE":
+        const args: any[] = JSON.parse(data.data);
+        for (const line of args) {
+          if (typeof line === "string") {
+            // 过滤输出
+            if (/^(\[PACKAGE\]|\[EXTENSION\]|\[EXTENSION\/VIEW\])/.test(line)) {
+              break;
+            }
+            const index = args.indexOf(line);
+            if (index === 0) {
+              output.appendLine(`[${data.type}] ${line}`);
+            } else {
+              output.appendLine(`${line}`);
+            }
+          } else {
+            output.appendLine(JSON.stringify(line));
+          }
+          output.show();
+        }
+        break;
+      default:
+        console.log("[EXTENSION] Ignore command:", command);
+        break;
+    }
   }
 
   loadConfig() {
