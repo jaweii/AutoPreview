@@ -8,7 +8,7 @@ import store from "../store";
 export default function App() {
   useEffect(() => {
     // 通知插件view已渲染
-    store.postMessage({
+    store.vscode.postMessage({
       command: "APP_MOUNTED",
     });
   }, []);

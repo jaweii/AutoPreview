@@ -40,7 +40,7 @@ export function activate(context: vscode.ExtensionContext) {
   // 活动窗口变化
   async function onActiveTextEditorChange() {
     const activeFilePath = vscode.window.activeTextEditor?.document.uri.fsPath;
-    if (getExtensionConfig().get("locked")) {
+  if (getExtensionConfig().get("locked")) {
       return;
     }
     previewer.setActiveFile(updateNodeModule(activeFilePath!, context));

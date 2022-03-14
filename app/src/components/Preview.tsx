@@ -1,26 +1,9 @@
 import React from "react";
-import { runInAction } from "mobx";
 import { Observer } from "mobx-react";
 import store from "../../store";
 import Toolbar from "./Toolbar";
 
 export default function Preview() {
-  const methods = {
-    onLoad(e) {
-      store.postMessage({
-        command: "SET_ACTIVE_FILE",
-        data: store.activeFile,
-      });
-      store.postMessage({
-        command: "SET_COMPONENT_INDEX",
-        data: store.componentIndex,
-      });
-      runInAction(() => {
-        store.loaded = true;
-      });
-    },
-  };
-
   const iframeUrl = `${store.config!.serverURL}?AutoPreview=true`;
   return (
     <Observer>
@@ -39,33 +22,23 @@ export default function Preview() {
             >
               <Observer>
                 {() => {
-                  return (
-                    <>
-                      <div
-                        className="absolute h-full w-full flex justify-center flex-col items-center"
-                        style={{
-                          display:
-                            store.packageInitiated || !store.loaded
-                              ? "none"
-                              : undefined,
-                        }}
-                      >
+                  const initialized = store.packageInitiated;
+                  const exported = store.packageInitiated && store.activeFile;
+                  if (!initialized) {
+                    return (
+                      <div className="absolute h-full w-full flex justify-center flex-col items-center">
                         <div>Autopreview is not initialized</div>
                       </div>
-                      <div
-                        className="absolute h-full w-full flex justify-center items-center"
-                        style={{
-                          display: store.packageInitiated
-                            ? !store.activeFile
-                              ? undefined
-                              : "none"
-                            : "none",
-                        }}
-                      >
+                    );
+                  }
+                  if (!exported) {
+                    return (
+                      <div className="absolute h-full w-full flex justify-center items-center">
                         No components exported
                       </div>
-                    </>
-                  );
+                    );
+                  }
+                  return <></>;
                 }}
               </Observer>
               <Observer>
@@ -79,7 +52,6 @@ export default function Preview() {
                       style={{
                         visibility: store.mounted ? undefined : "hidden",
                       }}
-                      onLoad={methods.onLoad}
                     ></iframe>
                   );
                 }}

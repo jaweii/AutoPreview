@@ -13,10 +13,41 @@ body::-webkit-scrollbar {
   width: 0 !important;
 }
 
-body {
+[data-autopreview] {
   visibility: hidden !important;
-  backgroundcolor: transparent;
+  background-color: transparent !important;
 }
-body.autopreview-loaded {
+
+[data-autopreview].autopreview-loaded {
   visibility: visible !important;
+  background-color: inherit !important;
+}
+
+[data-autopreview].align-left-top,
+[data-autopreview].align-center {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: transparent;
+}
+
+[data-autopreview].align-left-top {
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+[data-autopreview].align-center {
+  justify-content: center;
+  align-items: center;
+}
+
+[data-autopreview].align-left-top > [data-autopreview-wrapper] {
+  width: 100%;
+  text-align: left;
+}
+
+[data-autopreview].align-center > [data-autopreview-wrapper] {
+  text-align: center;
+  width: initial;
 }

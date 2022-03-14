@@ -78,6 +78,9 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
       case "SET_BACKGROUND":
         getExtensionConfig().update("background", data);
         break;
+      case "SET_CENTER":
+        getExtensionConfig().update("center", data);
+        break;
       case "CONSOLE":
         const args: any[] = JSON.parse(data.data);
         for (const line of args) {
@@ -95,7 +98,6 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
           } else {
             output.appendLine(JSON.stringify(line));
           }
-          output.show();
         }
         break;
       default:
@@ -172,7 +174,7 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
     return readFileSync(appFilePath, "utf-8");
   }
 
-  dispose() {}
+  dispose() { }
 }
 
 const previewer = new PreviewProvider();

@@ -1,28 +1,37 @@
 <template>
-  <v-layout>
-    <v-app-bar style="position: relative">
-      <v-app-bar-title>{{ title }}</v-app-bar-title>
-    </v-app-bar>
-  </v-layout>
+  <header>
+    <a-page-header>
+      <template #title>
+        <span style="color: white">TODO LIST</span>
+      </template>
+      <template #extra>
+        <slot name="actions"> </slot>
+      </template>
+    </a-page-header>
+  </header>
 </template>
 
+
+
 <script lang="tsx">
-import { defineComponent, FunctionalComponent, h } from "vue";
+import { defineComponent, h } from "vue";
 
 const Header = defineComponent({
-  props: {
-    title: String,
+  data() {
+    return {};
   },
 });
+
 export default Header;
 
 export function AutoPreview_Header() {
-  return <Header title="Title" />;
+  return <Header />;
 }
 </script>
 
-<style scoped>
-.header {
-  height: 60px;
+<style lang="less" scoped>
+header {
+  padding: 0 10px;
+  background: lightblue;
 }
 </style>

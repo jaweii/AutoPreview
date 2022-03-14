@@ -113,6 +113,26 @@ export function AutoPreview_Test(h) {
 
 4、参考**配置要求**配置好 Webpack/Vite，然后启动项目，在 VS Code 预览窗口输入 localhost 地址即可。
 
+## Web 组件
+
+`autopreview`包注册了下面这些 Web 组件，可以直接使用，主要用于包裹被预览的内容来控制布局：
+
+- `autopreview-list`：列表展示，即应用了`flex-direction: column`;
+
+例子：
+
+```
+<autopreview-list>
+  <Button type="primary">Primary Button</Button>
+  <Button>Default Button</Button>
+  <Button type="dashed">Dashed Button</Button>
+  <Button type="text">Text Button</Button>
+  <Button type="link">Link Button</Button>
+<autopreview-list>
+```
+
+![](https://raw.githubusercontent.com/jaweii/AutoPreview/main/demo/img/autopreview-list.png)
+
 ## 配置要求
 
 ### Vite 2
@@ -225,23 +245,24 @@ Vite：
 ### 欢迎补充
 
 ## TODO
+
 · ~~英文版~~
 
 · 预览面板中，复制组件用例代码
 
-· 完善常用脚手架的配置例子 
+· 完善常用脚手架的配置例子
 
-· 整合 VS Code Debug 功能 
+· 整合 VS Code Debug 功能
 
-· 测试 Windows 系统使用 
+· 测试 Windows 系统使用
 
-· 插件logo 
+· 插件 logo
 
 ## 常见问题
 
 1、提示 autopreview 模块未安装
 
-尝试在预览窗口点击刷新图标，然后重启服务。
+尝试重启VS Code，然后重启服务。
 
 2、Vue 3.0 中跨文件的 Provide、Reject 引用可能会不支持预览。
 

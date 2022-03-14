@@ -6,6 +6,8 @@ interface Config {
   locked: boolean;
   /** 用户项目服务地址 */
   serverURL: string;
+  /** 居中对齐 */
+  center: boolean;
 }
 
 class Store {
@@ -16,9 +18,6 @@ class Store {
 
   // @ts-ignore
   vscode = acquireVsCodeApi();
-
-  /** 是否就绪 */
-  ready = false;
 
   /** 用户活动窗口文件路径 */
   activeFile = "";
@@ -37,9 +36,11 @@ class Store {
   /** 组件是否已挂载 */
   mounted = false;
 
-  locked = false;
   /** iframe是否已加载 */
   loaded = false;
+
+  /** 是否就绪(config已加载) */
+  ready = false;
 
   init() {
     window.addEventListener("message", (e) => {
@@ -57,6 +58,7 @@ class Store {
             this.serverURLAvailable = serviceAvailable;
             this.activeFile = activeFile;
             this.componentIndex = componentIndex;
+            this.ready = true;
           });
           break;
         case "SET_COMPONENT_LIST":
@@ -74,15 +76,13 @@ class Store {
             this.mounted = false;
             this.activeFile = e.data.data;
           });
-          this.postMessage({
+          this.postMessageToIframe({
             command: "SET_ACTIVE_FILE",
             data: this.activeFile,
           });
           break;
         case "PACKAGE_INITIATED":
-          runInAction(() => {
-            this.packageInitiated = true;
-          });
+          this.onPackageInstalled()
           break;
         case "COMPONENT_MOUNTED":
           runInAction(() => {
@@ -108,37 +108,74 @@ class Store {
     });
   }
 
-  selectComponent(index: number) {
+  async onPackageInstalled() {
+    this.postMessageToIframe({
+      command: "SET_ACTIVE_FILE",
+      data: this.activeFile,
+    });
+    this.postMessageToIframe({
+      command: "SET_COMPONENT_INDEX",
+      data: this.componentIndex,
+    });
+    this.postMessageToIframe({
+      command: "SET_COMPONENT_INDEX",
+      data: this.componentIndex,
+    });
+    this.postMessageToIframe({
+      command: "SET_ALIGNMENT",
+      data: this.config.center ? "center" : "leftTop",
+    });
+    this.vscode.postMessage({
+      command: "SET_COMPONENT_INDEX",
+      data: this.componentIndex,
+    });
+
+    this.packageInitiated = true;
+    this.loaded = true;
+  }
+
+  setComponentIndex(index: number) {
     this.componentIndex = index;
-    this.postMessage({
+    this.postMessageToIframe({
+      command: "SET_COMPONENT_INDEX",
+      data: index,
+    });
+    this.vscode.postMessage({
       command: "SET_COMPONENT_INDEX",
       data: index,
     });
   }
 
-  lock(lock: boolean) {
-    this.postMessage({
+  setLock(lock: boolean) {
+    this.vscode.postMessage({
       command: "LOCK",
       data: lock,
     });
-    this.locked = lock;
+    this.config.locked = lock;
   }
 
   setBG(background: "white" | "transparent") {
-    this.postMessage({
+    this.vscode.postMessage({
       command: "SET_BACKGROUND",
       data: background,
     });
     this.config.background = background;
   }
 
-  postMessage(data: any) {
+  setCenter(center: boolean) {
+    this.postMessageToIframe({
+      command: "SET_ALIGNMENT",
+      data: center ? "center" : "leftTop",
+    });
+    this.config.center = center;
+  }
+
+  postMessageToIframe(data: any) {
     if (this.config?.serverURL && this.serverURLAvailable) {
       const iframe = document.querySelector("#iframe");
       // @ts-ignore
       iframe?.contentWindow?.postMessage(data, "*");
     }
-    this.vscode.postMessage(data);
   }
 }
 

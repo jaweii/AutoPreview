@@ -6,6 +6,7 @@
     {
       "label": "Develop",
       "dependsOn": ["Watch src", "Watch app"],
+      "dependsOrder": "parallel",
       "group": {
         "kind": "build",
         "isDefault": true

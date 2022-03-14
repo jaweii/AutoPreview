@@ -119,6 +119,26 @@ export function AutoPreview_Test(h) {
 
 4. Refer to **Webpack/Vite Configuration** to configure Webpack/Vite, then start project, and save localhost address in preview panel;
 
+## Web Component
+
+`autopreview` package registers some web components that you can use them directly:
+
+- `autopreview-list`: Display as a column list;
+
+Example:
+
+```
+<autopreview-list>
+  <Button type="primary">Primary Button</Button>
+  <Button>Default Button</Button>
+  <Button type="dashed">Dashed Button</Button>
+  <Button type="text">Text Button</Button>
+  <Button type="link">Link Button</Button>
+<autopreview-list>
+```
+
+![](https://raw.githubusercontent.com/jaweii/AutoPreview/main/demo/img/autopreview-list.png)
+
 ## Webpack/Vite Configuration
 
 ### Vite 2
@@ -246,7 +266,7 @@ Refer to [Vite+vue3](/demo)
 
 1. "`autopreview` is not installed"
 
-Try click refresh button in preview panel, then restart your project.
+Restart VS Code, and then restart your project.
 
 2. In Vue 3, components using `Provide` or `Reject` may not be previewed.
 

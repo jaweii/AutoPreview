@@ -1,16 +1,18 @@
-import { createApp } from "vue";
-import App from "./App.vue";
-import router from "./router";
-import store from "./store";
-import vuetify from "./plugins/vuetify";
-// import { loadFonts } from "./plugins/webfontloader";
+import { createApp } from 'vue';
+import Antd from 'ant-design-vue';
+import 'ant-design-vue/dist/antd.css';
 
-createApp(App).use(router).use(store).use(vuetify).mount("#app");
+import App from './App.vue';
+
+const app = createApp(App)
+console.log(app)
+app.use(Antd)
+app.mount('#app');
 
 if (process.env.NODE_ENV === "development") {
   import("autopreview/vue3").then(({ default: AutoPreview }) => {
     new AutoPreview("#app", (app) => {
-      app.use(router).use(store).use(vuetify);
+      app.use(Antd)
     });
   });
 }

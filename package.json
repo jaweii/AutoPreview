@@ -49,7 +49,7 @@
       }
     ],
     "views": {
-      "debug": [
+      "autopreview-container": [
         {
           "id": "AutoPreview.debug",
           "name": "Auto Preview",
@@ -77,12 +77,26 @@
           "type": "boolean",
           "default": false
         },
+        "AutoPreview.center": {
+          "$comment": "Align Center/Align Left",
+          "type": "boolean",
+          "default": false
+        },
         "AutoPreview.background": {
           "$comment": "Background Color",
           "type": "string",
           "default": "transparent"
         }
       }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "autopreview-container",
+          "icon": "res/icon/logo.svg",
+          "title": "Auto Preview"
+        }
+      ]
     }
   },
   "scripts": {
@@ -91,7 +105,7 @@
     "watch": "tsc -watch -p ./",
     "pretest": "yarn run compile && yarn run lint",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js",
+    "test": "jest",
     "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
     "esbuild": "npm run esbuild-base -- --sourcemap",
     "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
@@ -112,6 +126,7 @@
     "esbuild": "^0.14.21",
     "eslint": "^7.19.0",
     "glob": "^7.1.6",
+    "jest": "^27.5.1",
     "mocha": "^8.2.1",
     "parcel": "^2.3.2",
     "postcss": "^8.4.8",
