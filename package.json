@@ -14,7 +14,7 @@
     "Vite",
     "Webpack"
   ],
-  "version": "0.2.1",
+  "version": "0.3.0",
   "engines": {
     "vscode": "^1.63.0"
   },
