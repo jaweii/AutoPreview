@@ -9,7 +9,8 @@ body {
 }
 
 html::-webkit-scrollbar,
-body::-webkit-scrollbar {
+body::-webkit-scrollbar,
+[data-autopreview-wrapper] {
   width: 0 !important;
 }
 
@@ -43,11 +44,15 @@ body::-webkit-scrollbar {
 }
 
 [data-autopreview].align-left-top > [data-autopreview-wrapper] {
-  width: 100%;
   text-align: left;
+  width: 100%;
 }
 
 [data-autopreview].align-center > [data-autopreview-wrapper] {
   text-align: center;
   width: initial;
+}
+
+[data-autopreview-wrapper] {
+  overflow: auto;
 }

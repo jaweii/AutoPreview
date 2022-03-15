@@ -8,7 +8,7 @@
     <template #renderItem="{ item }">
       <a-list-item>
         <template #actions>
-          <a-button type="text" @click="del(iem)">Delete</a-button>
+          <a-button type="text" @click="del(item)">Delete</a-button>
         </template>
         <a-list-item-meta>
           <template #title>
@@ -56,6 +56,7 @@ const App = defineComponent({
 
 export default App;
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function AutoPreview_App() {
   return <App />;
 }

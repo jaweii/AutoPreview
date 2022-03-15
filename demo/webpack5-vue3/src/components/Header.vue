@@ -24,6 +24,7 @@ const Header = defineComponent({
 
 export default Header;
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function AutoPreview_Header() {
   return <Header />;
 }

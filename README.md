@@ -258,7 +258,7 @@ Refer to [Vite+vue3](/demo)
 
 · Integrate VS Code Debug
 
-· Test usage in Windows
+· Test on Windows
 
 · Extension logo
 
