@@ -10,7 +10,7 @@ body {
 
 html::-webkit-scrollbar,
 body::-webkit-scrollbar,
-[data-autopreview-wrapper] {
+[data-autopreview-wrapper]::-webkit-scrollbar {
   width: 0 !important;
 }
 

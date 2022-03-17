@@ -7,10 +7,10 @@
   "icon": "res/icon/logo.png",
   "keywords": [
     "Preview",
+    "React Preview",
+    "Vue Preview",
     "React",
     "Vue",
-    "Preview React",
-    "Preview Vue",
     "Vite",
     "Webpack"
   ],

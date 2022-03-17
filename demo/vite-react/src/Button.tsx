@@ -4,7 +4,12 @@ import Button from "@mui/material/Button";
 export default class Btn extends Component {
   render() {
     return (
-      <Button variant="contained" onClick={() => console.log("Hello world!")}>
+      <Button
+        variant="contained"
+        onClick={() => {
+          console.log("Hello world!");
+        }}
+      >
         {this.props.children}
       </Button>
     );
