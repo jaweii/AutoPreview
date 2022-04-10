@@ -7,12 +7,7 @@ export default function ConfigPanel() {
   });
   const methods = {
     save() {
-      store.vscode.postMessage({
-        command: "UPDATE_CONFIG",
-        data: {
-          serverURL: state.serverURL,
-        },
-      });
+      store.send("update", { serverURL: state.serverURL });
     },
   };
 

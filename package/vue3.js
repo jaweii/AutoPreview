@@ -12,14 +12,14 @@ export default class AutoPreviewForVue extends AutoPreview {
    * @param {number} [index]
    * @returns {void}
    */
-  async showComponent(components, index = 0) {
+  async _showComponent(components, index = 0) {
     const Vue = await import('vue');
 
     let component;
     if (components.length === 0) {
       component = {
         render() {
-          return 'No components found';
+          return '';
         },
       };
     } else if (components.length === 1) {
@@ -28,8 +28,8 @@ export default class AutoPreviewForVue extends AutoPreview {
       component = components[index].component;
     }
 
-    const currentActiveFilePath = this.currentActiveFilePath;
-    const filename = currentActiveFilePath.match(/[ \w-]+\./) || [''];
+    const activeFile = this.activeFile;
+    const filename = activeFile.match(/[ \w-]+\./) || [''];
     const name = filename[0].replace(/\./g, '');
     if (!name) {
       return;
@@ -40,7 +40,7 @@ export default class AutoPreviewForVue extends AutoPreview {
         return Vue.h(component);
       }
     });
-    const asyncComponent = Vue.defineAsyncComponent(() => import(currentActiveFilePath));
+    const asyncComponent = Vue.defineAsyncComponent(() => import(activeFile));
     app.component(name, asyncComponent);
     components.forEach(item => app.component(item.name, item.component));
 

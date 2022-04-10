@@ -19,7 +19,7 @@ body::-webkit-scrollbar,
   background-color: transparent !important;
 }
 
-[data-autopreview].autopreview-loaded {
+[data-autopreview].autopreview-mounted {
   visibility: visible !important;
   background-color: inherit !important;
 }

@@ -7,7 +7,7 @@ export default class Btn extends Component {
       <Button
         variant="contained"
         onClick={() => {
-          console.log("Hello world!");
+          console.warn("Hello world!");
         }}
       >
         {this.props.children}

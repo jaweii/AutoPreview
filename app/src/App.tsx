@@ -1,29 +1,27 @@
-import React, { useEffect } from "react";
-import { Observer } from "mobx-react";
+import React, { useEffect, useState } from "react";
+import { observer, Observer } from "mobx-react";
 import ConfigPanel from "./components/ConfigPanel";
 import NotRunning from "./components/NotRunning";
 import Preview from "./components/Preview";
 import store from "../store";
 
-export default function App() {
+export default observer(function App() {
+  const [ready, setReady] = useState(false);
+
   useEffect(() => {
-    // 通知插件view已渲染
-    store.vscode.postMessage({
-      command: "APP_MOUNTED",
+    store.init().then(() => {
+      setReady(true);
+      store.send("update", { appMounted: true });
     });
   }, []);
 
-  return (
-    <Observer>
-      {() => {
-        if (!store.config?.serverURL) {
-          return <ConfigPanel />;
-        } else if (!store.serverURLAvailable) {
-          return <NotRunning />;
-        } else {
-          return <Preview />;
-        }
-      }}
-    </Observer>
-  );
-}
+  if (!ready) {
+    return <></>;
+  } else if (!store.serverURL) {
+    return <ConfigPanel />;
+  } else if (!store.serverURLAvailable) {
+    return <NotRunning />;
+  } else {
+    return <Preview />;
+  }
+});

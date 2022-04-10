@@ -4,20 +4,52 @@ import { join } from "path";
 import { getExtensionConfig } from "./utils/vscode";
 import * as http from "http";
 import output from "./utils/output";
+import WSStore from "./WSStore";
+import { reaction } from "mobx";
 
 export class PreviewProvider implements vscode.WebviewViewProvider {
-  init(_extensionUri: vscode.Uri) {
-    this._extensionUri = _extensionUri;
+  init({ extensionUri, wsStore }: { extensionUri: vscode.Uri; wsStore: WSStore }) {
+    this._extensionUri = extensionUri;
+    this.wsStore = wsStore;
+    wsStore._on('REFRESH', () => this.refreshPage({ force: true }));
+    wsStore._on('ERROR', (data: string) => vscode.window.showErrorMessage(data));
+    wsStore._on('CONSOLE', ({ type, data }: { type: string, data: string }) => {
+      const args: any[] = JSON.parse(data);
+      for (const line of args) {
+        if (typeof line === "string") {
+          // 过滤输出
+          if (/^(\[PACKAGE\]|\[EXTENSION\]|\[EXTENSION\/VIEW\])/.test(line)) {
+            break;
+          }
+          const index = args.indexOf(line);
+          if (index === 0) {
+            output.appendLine(`[${type}] ${line}`);
+          } else {
+            output.appendLine(`${line}`);
+          }
+        } else {
+          output.appendLine(JSON.stringify(line));
+        }
+      }
+    });
+    reaction(() => wsStore.serverURL, () => {
+      getExtensionConfig().update('serverURL', wsStore.serverURL);
+      // this.refreshPage({ force: true });
+    });
+    reaction(() => wsStore.locked, () => {
+      vscode.commands.executeCommand(`AutoPreview.debug.${wsStore.locked ? 'lock' : 'unlock'}`);
+    });
+    reaction(() => wsStore.background, () => getExtensionConfig().update("background", wsStore.background));
+    reaction(() => wsStore.center, () => getExtensionConfig().update("center", wsStore.center));
+    reaction(() => wsStore.appMounted, () => wsStore.appMounted && this.checkServerURL());
   }
 
   public static readonly id = "AutoPreview.debug";
 
   private _extensionUri!: vscode.Uri;
+  public wsStore!: WSStore;
+
   view?: vscode.WebviewView;
-  serverURL?: string;
-  activeFile?: string;
-  serviceAvailable = false;
-  componentIndex = 0;
 
   resolveWebviewView(
     webviewView: vscode.WebviewView,
@@ -31,121 +63,36 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
       enableForms: true,
       enableCommandUris: true,
     };
-    webviewView.webview.onDidReceiveMessage(this.onReceiveMessage.bind(this));
+    this.view.onDidChangeVisibility(() => this.refreshPage());
     this.refreshPage({ force: true });
-  }
-
-  async onReceiveMessage({ command, data }: { command: string; data: any }) {
-    console.log("[EXTENSION] receive a message:", command, data);
-    switch (command) {
-      case "APP_MOUNTED":
-        this.view?.webview.postMessage({
-          command: "LOAD_CONFIG",
-          data: {
-            serverURL: this.serverURL,
-            serviceAvailable: this.serviceAvailable,
-            activeFile: this.activeFile,
-            componentIndex: this.componentIndex,
-            ...JSON.parse(JSON.stringify(getExtensionConfig())),
-          },
-        });
-        break;
-      case "UPDATE_CONFIG":
-        for (const key in data) {
-          await getExtensionConfig().update(key, data[key]);
-        }
-        this.loadConfig();
-        this.refreshPage({ force: true });
-        break;
-      case "SET_COMPONENT_INDEX":
-        this.componentIndex = data;
-        break;
-      case "REFRESH":
-        this.refreshPage({
-          force: true,
-        });
-        break;
-      case "LOCK":
-        if (data) {
-          vscode.commands.executeCommand("AutoPreview.debug.lock");
-        } else {
-          vscode.commands.executeCommand("AutoPreview.debug.unlock");
-        }
-        break;
-      case "ERROR":
-        vscode.window.showErrorMessage(data);
-        break;
-      case "SET_BACKGROUND":
-        getExtensionConfig().update("background", data);
-        break;
-      case "SET_CENTER":
-        getExtensionConfig().update("center", data);
-        break;
-      case "CONSOLE":
-        const args: any[] = JSON.parse(data.data);
-        for (const line of args) {
-          if (typeof line === "string") {
-            // 过滤输出
-            if (/^(\[PACKAGE\]|\[EXTENSION\]|\[EXTENSION\/VIEW\])/.test(line)) {
-              break;
-            }
-            const index = args.indexOf(line);
-            if (index === 0) {
-              output.appendLine(`[${data.type}] ${line}`);
-            } else {
-              output.appendLine(`${line}`);
-            }
-          } else {
-            output.appendLine(JSON.stringify(line));
-          }
-        }
-        break;
-      default:
-        console.log("[EXTENSION] Ignore command:", command);
-        break;
-    }
   }
 
   loadConfig() {
     const config = getExtensionConfig();
-    this.serverURL = config.get("serverURL");
-  }
-
-  setActiveFile(activeFile?: string) {
-    if (!activeFile || this.activeFile === activeFile) {
-      return;
-    }
-    this.componentIndex = 0;
-    this.activeFile = activeFile;
-    this.view?.webview.postMessage({
-      command: "SET_COMPONENT_INDEX",
-      data: this.componentIndex,
-    });
-    this.view?.webview.postMessage({
-      command: "SET_ACTIVE_FILE",
-      data: activeFile,
+    this.wsStore._update({
+      serverURL: config.get("serverURL"),
     });
   }
 
   async checkServerURL() {
-    if (!this.serverURL) {
-      return (this.serviceAvailable = false);
+    if (!this.wsStore.serverURL) {
+      return this.wsStore._update({ 'serverURLAvailable': false });
     }
     try {
       await new Promise((resolve, reject) => {
         http
-          .get(this.serverURL!, (res) => {
-            this.serviceAvailable = true;
+          .get(this.wsStore.serverURL!, (res) => {
+            this.wsStore._update({ 'serverURLAvailable': true });
             resolve(true);
           })
           .on("error", (err) => {
-            this.serviceAvailable = false;
+            this.wsStore._update({ 'serverURLAvailable': false });
             resolve(false);
           });
       });
     } catch (err) {
       console.log(err);
-      this.serviceAvailable = false;
+      this.wsStore._update({ 'serverURLAvailable': false });
     }
   }
 
@@ -153,9 +100,9 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
     if (!this.view) {
       return;
     }
+    this.wsStore._update({ appMounted: false, componentMounted: false, packageInitiated: false, });
     this.loadConfig();
     if (force) {
-      await this.checkServerURL();
       this.view.webview.html = "";
       await new Promise((resolve, reject) => setTimeout(resolve, 50));
       this.view!.webview.html = this._getHtmlForWebview();
@@ -171,7 +118,9 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
       "dist",
       "index.html"
     );
-    return readFileSync(appFilePath, "utf-8");
+    let html = readFileSync(appFilePath, "utf-8");
+    html = html.replace('__WS_PORT__', this.wsStore._port.toString());
+    return html;
   }
 
   dispose() { }

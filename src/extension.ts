@@ -1,12 +1,17 @@
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from "fs";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import * as vscode from "vscode";
 import previewer, { PreviewProvider } from "./PreviewProvider";
 import { getActiveFolder, getExtensionConfig } from "./utils/vscode";
 import { copySync } from "fs-extra";
+import DebugConfigProvider from "./DebugConfigProvider";
+import getPort from "get-port";
+import WSStore from "./WSStore";
 
-export function activate(context: vscode.ExtensionContext) {
-  previewer.init(context.extensionUri);
+export async function activate(context: vscode.ExtensionContext) {
+  const wsPort = await getPort();
+  const wsStore = new WSStore(wsPort);
+  previewer.init({ extensionUri: context.extensionUri, wsStore });
 
   vscode.commands.registerCommand("AutoPreview.debug.refresh", () => {
     initWorkspace();
@@ -18,7 +23,7 @@ export function activate(context: vscode.ExtensionContext) {
   vscode.commands.registerCommand("AutoPreview.debug.unlock", async () => {
     getExtensionConfig().update("locked", false);
     const activeFilePath = vscode.window.activeTextEditor?.document.uri.fsPath;
-    previewer.setActiveFile(updateNodeModule(activeFilePath!, context));
+    updateActiveFile(activeFilePath!, context);
   });
 
   const disposable = vscode.window.registerWebviewViewProvider(
@@ -40,10 +45,11 @@ export function activate(context: vscode.ExtensionContext) {
   // 活动窗口变化
   async function onActiveTextEditorChange() {
     const activeFilePath = vscode.window.activeTextEditor?.document.uri.fsPath;
-  if (getExtensionConfig().get("locked")) {
+    if (getExtensionConfig().get("locked")) {
       return;
     }
-    previewer.setActiveFile(updateNodeModule(activeFilePath!, context));
+
+    updateActiveFile(activeFilePath!, context);
 
     const modulePath = join(
       getActiveFolder()!.uri.fsPath,
@@ -55,18 +61,26 @@ export function activate(context: vscode.ExtensionContext) {
     }
   }
   vscode.window.onDidChangeActiveTextEditor(onActiveTextEditorChange);
-  onActiveTextEditorChange();
+  if (getActiveFolder()) {
+    onActiveTextEditorChange();
+  }
 
   vscode.workspace.onDidSaveTextDocument(async (e) => {
     // TODO:
     // vue 的AutoPreview_函数组件的更新不会出发页面渲染，这里手动重新渲染
-    if (e.languageId === "vue" && previewer.activeFile) {
-      previewer.setActiveFile(updateNodeModule(previewer.activeFile, context));
+    if (e.languageId === "vue" && wsStore.activeFile) {
+      updateActiveFile(wsStore.activeFile, context);
     }
   });
+
+  vscode.debug.registerDebugConfigurationProvider('AutoPreview', DebugConfigProvider);
+
+
 }
 
-export function deactivate() {}
+export function deactivate() {
+}
+
 
 function installNodeModule(context: vscode.ExtensionContext) {
   if (!getActiveFolder()) {
@@ -86,44 +100,58 @@ function installNodeModule(context: vscode.ExtensionContext) {
   copySync(src, dst);
 }
 
-function updateNodeModule(
-  activeFilePath: string,
+function updateActiveFile(
+  activeFile: string,
   context: vscode.ExtensionContext
 ) {
-  if (!activeFilePath || activeFilePath.split(/(\\|\/)/).length <= 1) {
+  if (!activeFile || activeFile.split(/(\\|\/)/).length <= 1) {
     return;
   }
-  activeFilePath = activeFilePath.replaceAll("\\", "\\\\"); // Windows
+  activeFile = activeFile.replaceAll("\\", "\\\\"); // Windows
   const src = join(context.extensionUri.fsPath, "package");
   const node_module = join(
     getActiveFolder()!.uri.fsPath,
     "node_modules",
     "autopreview"
   );
-  const activeFileContent = readFileSync(activeFilePath, "utf-8");
+  const activeFileContent = readFileSync(activeFile, "utf-8");
   let indexJsContent = readFileSync(join(src, "index.template.js"), "utf-8");
   // 监控指定后缀文件的窗口变换
-  if (!/(js|jsx|ts|tsx|vue)$/.test(activeFilePath)) {
-    activeFilePath = "";
-    indexJsContent = indexJsContent.replace(/.*import.*/g, activeFilePath);
+  if (!/(js|jsx|ts|tsx|vue)$/.test(activeFile)) {
+    activeFile = "";
+    indexJsContent = indexJsContent.replace(/.*import.*/g, activeFile);
   }
-  if (/(node_modules)/.test(activeFilePath)) {
-    activeFilePath = "";
-    indexJsContent = indexJsContent.replace(/.*import.*/g, activeFilePath);
+  if (/(node_modules)/.test(activeFile)) {
+    activeFile = "";
+    indexJsContent = indexJsContent.replace(/.*import.*/g, activeFile);
   }
   // 当前窗口是否使用AutoPreview, vue文件除外
   if (
-    // !/(vue)$/.test(activeFilePath) &&
+    // !/(vue)$/.test(activeFile) &&
     activeFileContent.indexOf("AutoPreview_") === -1
   ) {
-    activeFilePath = "";
-    indexJsContent = indexJsContent.replace(/.*import.*/g, activeFilePath);
+    activeFile = "";
+    indexJsContent = indexJsContent.replace(/.*import.*/g, activeFile);
   }
-  indexJsContent = indexJsContent.replaceAll("__active_file__", activeFilePath);
+  indexJsContent = indexJsContent.replaceAll("__active_file__", activeFile);
   const dst = join(node_module, "index.js");
   if (!existsSync(dst)) {
     installNodeModule(context);
   }
-  writeFileSync(dst, indexJsContent);
-  return activeFilePath;
+
+  if (activeFile && previewer.wsStore.activeFile !== activeFile) {
+    previewer.wsStore._update({
+      componentIndex: 0,
+      activeFile,
+      appMounted: false,
+      componentMounted: false,
+      components: [],
+    });
+    // previewer.wsStore._wss.clients.forEach(client => client.close());
+    // previewer.refreshPage({ force: true });
+    writeFileSync(dst, indexJsContent);
+  }
+
 }
+
+

@@ -14,13 +14,19 @@ export default class AutoPreview {
     if (initiated) { throw new Error(`AutoPreview already initiated`); }
 
     /** @type {string} */
-    this.currentActiveFilePath = getActiveFilePath();
+    this.activeFile = getActiveFilePath();
 
     /** @type {number} */
     this.componentIndex = 0;
 
-    /** @type {'center'|'leftTop'} */
-    this.align = 'leftTop';
+    /** @type { Array<{name: string; component: any}> } */
+    this.components = [];
+
+    /** @type {boolean} */
+    this.center = false;
+
+    /** @type {boolean} */
+    this.componentMounted = false;
 
     try {
       /** @type {'webpack'|'vite'} */
@@ -37,50 +43,76 @@ export default class AutoPreview {
 
     const url = new URL(location.href);
     const autopreview = url.searchParams.get('AutoPreview');
-    // open in VS Code
-    if (autopreview) {
+    if (!autopreview) { return; };
+
+    const wsPort = url.searchParams.get('wsPort');
+
+    /** @type {WebSocket} */
+    this.ws = new WebSocket(`ws://localhost:${wsPort}?client=package`);
+    this.ws.onopen = () => {
       // mark the mounted target, so that we can use dataset to select element, avoid id lost after mount
       root.dataset.autopreview = '';
-      window.addEventListener('message', this.onReceiveMessage.bind(this));
       this._captureOutput();
+      this.ws.onmessage = this.onReceiveMessage.bind(this);
+      this.sendMessage('update', { packageInitiated: true });
       initiated = true;
-      window.parent.postMessage({ command: 'PACKAGE_INITIATED' }, '*');
-    }
+    };
+  }
+
+
+  /**
+   * @param {string} action 
+   * @param {any} data 
+   */
+  sendMessage(action, data) {
+    if (!this.ws) { return; };
+    this.ws.send(JSON.stringify({ id: Date.now().toString, action, data }));
   }
 
   /**
    * @param {MessageEvent} e
    */
   async onReceiveMessage(e) {
-    if (e.data.type && e.data.type.indexOf('webpack') !== -1) { return; }
-    console.log('[PACKAGE] receive message', e.data);
+    const { id, action, data } = JSON.parse(e.data);
+    console.log('[PACKAGE]', action, data);
+    /** @type {Array<'activeFile' | 'componentIndex' | 'center' | 'componentMounted'>} */
+    const keys = Object.keys(data).filter(key => ['activeFile', 'componentIndex', 'center'].includes(key));
     const root = document.querySelector('[data-autopreview]');
-    switch (e.data.command) {
-      case 'SET_ACTIVE_FILE':
-        this.currentActiveFilePath = e.data.data;
-        root.classList.remove('autopreview-loaded');
-        if (this.buildTool === 'webpack') {
-          // HMR unable to update AutoPreview_ function, manually update is required, avoid HMR and manually update at the same time
-          await new Promise((resolve, reject) => setTimeout(resolve, 500));
+    switch (action) {
+      case 'init':
+        this.activeFile = data.activeFile;
+        this.center = data.center;
+        this.componentIndex = data.componentIndex;
+        if (this.activeFile) {
+          await this.getComponents();
+          await this.showComponent();
         }
-        await this._showComponent();
+        if (keys.includes('center')) {
+          this.applyAlignment(this.center);
+        }
         break;
-      case 'SET_COMPONENT_INDEX':
-        const index = e.data.data;
-        this.componentIndex = index;
-        await this._showComponent();
-        break;
-      case 'SET_ALIGNMENT':
-        this.align = e.data.data;
-        this.setAlignment(this.align);
+      case 'update':
+        // if (data.componentMounted === false) { return; }; 
+        if (keys.includes('center') && data.center !== this.center) {
+          this.applyAlignment(data.center);
+        }
+        if ((keys.includes('activeFile') && data.activeFile !== this.activeFile)) {
+          await this.getComponents();
+          await this.showComponent();
+        } else if (keys.includes('componentIndex') && data.componentIndex !== this.componentIndex) {
+          await this.showComponent();
+        }
+        if (data.componentMounted === true) {
+          root.classList.add('autopreview-mounted');
+        }
+        keys.forEach(key => this[key] = data[key]);
         break;
       default:
-        console.log('[PACKAGE] Ignore command', e.data.command);
-        break;
+        return;
     }
   }
 
-  async _showComponent() {
+  async getComponents() {
     const activeModule = await this.getModule() || {};
     const keys = Object.keys(activeModule)
       .filter((key) => {
@@ -89,21 +121,28 @@ export default class AutoPreview {
         }
         return false;
       });
-    window.parent.postMessage({ command: 'SET_COMPONENT_LIST', data: keys }, '*');
-    const components = keys
+    this.components = keys
       .map((key) => {
         return {
           name: key,
           component: activeModule[key]
         };
       });
-    await this.showComponent(components, this.componentIndex);
-    this.setAlignment(this.align);
+    this.sendMessage('update', {
+      'components': keys
+    });
+  }
+
+  async showComponent() {
+    if (this.buildTool === 'webpack') {
+      // HMR unable to update AutoPreview_ function, manually update is required, avoid HMR and manually update at the same time
+      await new Promise((resolve, reject) => setTimeout(resolve, 500));
+    }
+    await this._showComponent(this.components, this.componentIndex);
+    this.applyAlignment(this.center);
     // sometimes flashing, delay a bit
     setTimeout(() => {
-      const root = document.querySelector('[data-autopreview]');
-      root.classList.add('autopreview-loaded');
-      window.parent.postMessage({ command: 'COMPONENT_MOUNTED' }, '*');
+      this.sendMessage('update', { componentMounted: true });
     }, 100);
   }
 
@@ -112,7 +151,7 @@ export default class AutoPreview {
   * @param {number} [index]
   * @returns {void}
   */
-  async showComponent(components, index = 0) {
+  async _showComponent(components, index = 0) {
     // 
   }
 
@@ -139,14 +178,14 @@ export default class AutoPreview {
 
   /**
    * 
-   * @param {'center'|'leftTop'} align alignment
+   * @param {boolean} center alignment
    */
-  setAlignment(align) {
+  applyAlignment(center) {
     const root = document.querySelector('[data-autopreview]');
-    if (align === 'center') {
+    if (center) {
       root.classList.remove('align-left-top');
       root.classList.add('align-center');
-    } else if (align === 'leftTop') {
+    } else {
       root.classList.remove('align-center');
       root.classList.add('align-left-top');
     }
@@ -177,15 +216,10 @@ export default class AutoPreview {
       console[name] = (...args) => {
         cb(...args);
         try {
-          window.parent.postMessage({
-            command: 'CONSOLE',
-            type: name,
-            data: JSON.stringify(args)
-          }, '*');
+          this.sendMessage('CONSOLE', { type: name, data: JSON.stringify(args) });
         } catch (_) { }
       };
     });
-
   }
 }
 

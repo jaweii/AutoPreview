@@ -12,10 +12,10 @@ export default class AutoPreviewForReact extends AutoPreview {
   * @param {number} [index]
   * @returns {void}
   */
-  async showComponent(components, index = 0) {
+  async _showComponent(components, index = 0) {
     let el;
     if (components.length === 0) {
-      el = createElement("div", {}, "No components found");
+      el = createElement("div", {}, "");
     } else if (components.length === 1) {
       el = createElement(components[0].component);
     } else {
