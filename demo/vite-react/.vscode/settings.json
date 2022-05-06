@@ -1,8 +1,6 @@
 {
-  "AutoPreview.vite_config": "vite.config.js",
-  "AutoPreview.vite_config": "vite.config.js",
   "AutoPreview.serverURL": "http://localhost:3000/",
   "AutoPreview.locked": false,
   "AutoPreview.background": "transparent",
-  "AutoPreview.center": true,
+  "AutoPreview.center": false,
 }

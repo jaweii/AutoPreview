@@ -14,7 +14,7 @@ body::-webkit-scrollbar,
   width: 0 !important;
 }
 
-[data-autopreview] {
+/* [data-autopreview] {
   visibility: hidden !important;
   background-color: transparent !important;
 }
@@ -22,7 +22,7 @@ body::-webkit-scrollbar,
 [data-autopreview].autopreview-mounted {
   visibility: visible !important;
   background-color: inherit !important;
-}
+} */
 
 [data-autopreview].align-left-top,
 [data-autopreview].align-center {

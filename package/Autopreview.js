@@ -28,6 +28,9 @@ export default class AutoPreview {
     /** @type {boolean} */
     this.componentMounted = false;
 
+    /** @type {boolean} */
+    this.loading = false;
+
     try {
       /** @type {'webpack'|'vite'} */
       this.buildTool = __webpack_exports__ && 'webpack';
@@ -52,7 +55,6 @@ export default class AutoPreview {
     this.ws.onopen = () => {
       // mark the mounted target, so that we can use dataset to select element, avoid id lost after mount
       root.dataset.autopreview = '';
-      this._captureOutput();
       this.ws.onmessage = this.onReceiveMessage.bind(this);
       this.sendMessage('update', { packageInitiated: true });
       initiated = true;
@@ -74,9 +76,8 @@ export default class AutoPreview {
    */
   async onReceiveMessage(e) {
     const { id, action, data } = JSON.parse(e.data);
-    console.log('[PACKAGE]', action, data);
     /** @type {Array<'activeFile' | 'componentIndex' | 'center' | 'componentMounted'>} */
-    const keys = Object.keys(data).filter(key => ['activeFile', 'componentIndex', 'center'].includes(key));
+    const keys = Object.keys(data).filter(key => ['activeFile', 'componentIndex', 'center', 'componentMounted'].includes(key));
     const root = document.querySelector('[data-autopreview]');
     switch (action) {
       case 'init':
@@ -93,19 +94,22 @@ export default class AutoPreview {
         break;
       case 'update':
         // if (data.componentMounted === false) { return; }; 
-        if (keys.includes('center') && data.center !== this.center) {
+        const center = this.center;
+        const activeFile = this.activeFile;
+        const componentIndex = this.componentIndex;
+        keys.forEach(key => this[key] = data[key]);
+        if (keys.includes('center') && data.center !== center) {
           this.applyAlignment(data.center);
         }
-        if ((keys.includes('activeFile') && data.activeFile !== this.activeFile)) {
+        if ((keys.includes('activeFile') && data.activeFile !== activeFile)) {
           await this.getComponents();
           await this.showComponent();
-        } else if (keys.includes('componentIndex') && data.componentIndex !== this.componentIndex) {
+        } else if (keys.includes('componentIndex') && data.componentIndex !== componentIndex) {
           await this.showComponent();
         }
         if (data.componentMounted === true) {
           root.classList.add('autopreview-mounted');
         }
-        keys.forEach(key => this[key] = data[key]);
         break;
       default:
         return;
@@ -116,7 +120,7 @@ export default class AutoPreview {
     const activeModule = await this.getModule() || {};
     const keys = Object.keys(activeModule)
       .filter((key) => {
-        if (key.startsWith("AutoPreview_")) {
+        if (key.toLowerCase().startsWith("autopreview_")) {
           return true;
         }
         return false;
@@ -134,16 +138,17 @@ export default class AutoPreview {
   }
 
   async showComponent() {
-    if (this.buildTool === 'webpack') {
-      // HMR unable to update AutoPreview_ function, manually update is required, avoid HMR and manually update at the same time
-      await new Promise((resolve, reject) => setTimeout(resolve, 500));
-    }
+    if (this.loading) { return; };
+    this.loading = true;
+    // if (this.buildTool === 'webpack') {
+    //   // HMR unable to update AutoPreview_ function, manually update is required, avoid HMR and manually update at the same time
+    //   await new Promise((resolve, reject) => setTimeout(resolve, 500));
+    // }
     await this._showComponent(this.components, this.componentIndex);
     this.applyAlignment(this.center);
-    // sometimes flashing, delay a bit
-    setTimeout(() => {
-      this.sendMessage('update', { componentMounted: true });
-    }, 100);
+    // await new Promise(resolve => setTimeout(resolve, 500));
+    this.sendMessage('update', { componentMounted: true });
+    this.loading = false;
   }
 
   /**
@@ -158,7 +163,7 @@ export default class AutoPreview {
   /**
    * The previewed component will be mounted here
    */
-  newTarget() {
+  createTarget() {
     let target = document.querySelector('[data-autopreview]');
     if (!target) {
       throw new Error('No target found');
@@ -208,19 +213,6 @@ export default class AutoPreview {
     return;
   }
 
-
-  _captureOutput() {
-    const methods = ['log', 'info', 'warn', 'error'];
-    methods.forEach(name => {
-      const cb = console[name];
-      console[name] = (...args) => {
-        cb(...args);
-        try {
-          this.sendMessage('CONSOLE', { type: name, data: JSON.stringify(args) });
-        } catch (_) { }
-      };
-    });
-  }
 }
 
 

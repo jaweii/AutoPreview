@@ -8,7 +8,6 @@ function App() {
 
   return (
     <div className="App">
-      <TextField />
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>Hello Vite + React!</p>
@@ -50,3 +49,5 @@ function App() {
 }
 
 export default App;
+
+export const AutoPreview_App = () => <App />;

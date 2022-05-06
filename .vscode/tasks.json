@@ -5,7 +5,7 @@
   "tasks": [
     {
       "label": "Develop",
-      "dependsOn": ["Watch src", "Watch app"],
+      "dependsOn": ["Watch app", "Watch src"],
       "dependsOrder": "parallel",
       "group": {
         "kind": "build",

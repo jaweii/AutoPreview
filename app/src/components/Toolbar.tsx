@@ -1,6 +1,6 @@
 import React from "react";
-import { observer, Observer } from "mobx-react";
-import store from "../../store";
+import { observer } from "mobx-react";
+import ws from "../store/ws";
 import {
   ALIGN_CENTER,
   ALIGN_LEFT,
@@ -11,75 +11,89 @@ import {
   REFRESH,
   UNLOCK,
 } from "./icons";
+import classNames from "classnames";
 
 export default observer(function Toolbar() {
+  const {
+    locked,
+    center,
+    background,
+    loaded,
+    components,
+    componentIndex,
+    debugging,
+  } = ws.attributes;
+
   return (
     <div className="tool-bar w-full flex flex-wrap justify-between items-center">
       <div className="flex items-center p-1">
         <div
-          className="mx-1 cursor-pointer active:opacity-70"
+          className={classNames("mx-1 cursor-pointer active:opacity-70", {
+            hidden: debugging,
+          })}
           onClick={() => {
-            store.send("REFRESH");
+            ws.send("REFRESH");
+            location.reload();
           }}
           title="Refresh"
         >
           {REFRESH}
         </div>
-        {store.locked && (
+        {locked && (
           <div
             className="mx-1 cursor-pointer active:opacity-70 text-highlight"
-            onClick={() => store.send("update", { locked: false })}
+            onClick={() => ws.send("update", { locked: false })}
             title="Lock"
           >
             {LOCK}
           </div>
         )}
-        {!store.locked && (
+        {!locked && (
           <div
             className="mx-1 cursor-pointer active:opacity-70"
-            onClick={() => store.send("update", { locked: true })}
+            onClick={() => ws.send("update", { locked: true })}
             title="Unlock"
           >
             {UNLOCK}
           </div>
         )}
-        {store.center && (
+        {center && (
           <div
             className="mx-1 cursor-pointer active:opacity-70"
-            onClick={() => store.send("update", { center: false })}
+            onClick={() => ws.send("update", { center: false })}
             title="Align Center"
           >
             {ALIGN_CENTER}
           </div>
         )}
-        {!store.center && (
+        {!center && (
           <div
             className="mx-1 cursor-pointer active:opacity-70"
-            onClick={() => store.send("update", { center: true })}
+            onClick={() => ws.send("update", { center: true })}
             title="Align Left"
           >
             {ALIGN_LEFT}
           </div>
         )}
-        {store.background === "transparent" && (
-          <div
-            className="mx-1 cursor-pointer active:opacity-70"
-            onClick={() => store.send("update", { background: "white" })}
-            title="Set white background"
-          >
-            {COLOR_MODE}
-          </div>
-        )}
-        {store.background === "white" && (
-          <div
-            className="mx-1 cursor-pointer active:opacity-70"
-            onClick={() => store.send("update", { background: "transparent" })}
-            title="Set transparent background"
-          >
-            {CIRCLE_LARGE_FILLED}
-          </div>
-        )}
-        {/* {store.loaded && (
+        <div
+          className={classNames("mx-1 cursor-pointer active:opacity-70", {
+            hidden: background !== "transparent" || debugging,
+          })}
+          onClick={() => ws.send("update", { background: "white" })}
+          title="Set white background"
+        >
+          {COLOR_MODE}
+        </div>
+        <div
+          className={classNames("mx-1 cursor-pointer active:opacity-70", {
+            hidden: background !== "white" || debugging,
+          })}
+          onClick={() => ws.send("update", { background: "transparent" })}
+          title="Set transparent background"
+        >
+          {CIRCLE_LARGE_FILLED}
+        </div>
+        {/* {loaded && (
           <div
             className="mx-1 cursor-pointer active:opacity-70"
             onClick={() => {}}
@@ -90,15 +104,15 @@ export default observer(function Toolbar() {
         )} */}
       </div>
       <div className="w-full">
-        {(store.components || []).length > 1 && (
+        {(components || []).length > 1 && (
           <select
             className="select w-full"
             onChange={(e) => {
-              store.send("update", { componentIndex: +e.target.value });
+              ws.send("update", { componentIndex: +e.target.value });
             }}
-            value={store.componentIndex}
+            value={componentIndex}
           >
-            {(store.components || []).map((name, i) => {
+            {(components || []).map((name, i) => {
               return (
                 <option key={name} value={i}>
                   {name.replace("AutoPreview_", "")}

@@ -45,6 +45,6 @@ export default class AutoPreviewForVue extends AutoPreview {
     }));
 
     const rootComponent = app.$mount();
-    this.newTarget().appendChild(rootComponent.$el);
+    this.createTarget().appendChild(rootComponent.$el);
   }
 }

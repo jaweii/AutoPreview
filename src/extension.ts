@@ -5,13 +5,13 @@ import previewer, { PreviewProvider } from "./PreviewProvider";
 import { getActiveFolder, getExtensionConfig } from "./utils/vscode";
 import { copySync } from "fs-extra";
 import DebugConfigProvider from "./DebugConfigProvider";
-import getPort from "get-port";
-import WSStore from "./WSStore";
+import wsStore from "./wsStore";
+import cdpController from "./cdpController";
 
 export async function activate(context: vscode.ExtensionContext) {
-  const wsPort = await getPort();
-  const wsStore = new WSStore(wsPort);
-  previewer.init({ extensionUri: context.extensionUri, wsStore });
+  await wsStore.init();
+  await cdpController.init();
+  previewer.init({ extensionUri: context.extensionUri });
 
   vscode.commands.registerCommand("AutoPreview.debug.refresh", () => {
     initWorkspace();
@@ -68,13 +68,20 @@ export async function activate(context: vscode.ExtensionContext) {
   vscode.workspace.onDidSaveTextDocument(async (e) => {
     // TODO:
     // vue 的AutoPreview_函数组件的更新不会出发页面渲染，这里手动重新渲染
-    if (e.languageId === "vue" && wsStore.activeFile) {
-      updateActiveFile(wsStore.activeFile, context);
+    if (e.languageId === "vue" && wsStore.attributes.activeFile) {
+      updateActiveFile(wsStore.attributes.activeFile, context);
     }
   });
 
   vscode.debug.registerDebugConfigurationProvider('AutoPreview', DebugConfigProvider);
 
+  vscode.debug.onDidStartDebugSession(e => {
+    wsStore.update({ debugging: true });
+  });
+
+  vscode.debug.onDidTerminateDebugSession(e => {
+    wsStore.update({ debugging: false });
+  });
 
 }
 
@@ -139,17 +146,16 @@ function updateActiveFile(
     installNodeModule(context);
   }
 
-  if (activeFile && previewer.wsStore.activeFile !== activeFile) {
-    previewer.wsStore._update({
-      componentIndex: 0,
-      activeFile,
-      appMounted: false,
-      componentMounted: false,
-      components: [],
-    });
-    // previewer.wsStore._wss.clients.forEach(client => client.close());
-    // previewer.refreshPage({ force: true });
+  if (activeFile && wsStore.attributes.activeFile !== activeFile) {
     writeFileSync(dst, indexJsContent);
+    // Don't notify old client
+    wsStore.wss.clients.forEach(client => client.close());
+    wsStore.update({
+      componentIndex: 0,
+      components: [],
+      activeFile,
+    });
+    previewer.refreshPage({ force: true });
   }
 
 }

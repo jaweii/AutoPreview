@@ -52,7 +52,7 @@ if (process.env.NODE_ENV === 'development') {
 
 > 其他项目参考`autopreview/react`和`autopreview/vue2`的实现，即通过`autopreview/index`导出的`getActiveFilePath()`方法拿到当前窗口文件路径，传给`import(PATH)`拿到当前窗口导出的组件，将目标组件挂载到页面，即可实现预览。
 
-3、导出`AutoPreview_`开头的函数组件：
+3、导出`autopreview_`开头的函数组件(大小写不敏感)：
 
 React 组件示例：
 

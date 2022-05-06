@@ -1,26 +1,24 @@
-import React, { useEffect, useState } from "react";
-import { observer, Observer } from "mobx-react";
+import React, { useEffect } from "react";
+import { observer } from "mobx-react";
 import ConfigPanel from "./components/ConfigPanel";
-import NotRunning from "./components/NotRunning";
 import Preview from "./components/Preview";
-import store from "../store";
+import ws from "./store/ws";
+import cdp from "./store/cdp";
+import { useAsyncEffect } from "ahooks";
 
 export default observer(function App() {
-  const [ready, setReady] = useState(false);
+  const { serverURL, appMounted } = ws.attributes;
 
-  useEffect(() => {
-    store.init().then(() => {
-      setReady(true);
-      store.send("update", { appMounted: true });
-    });
+  useAsyncEffect(async () => {
+    await ws.init();
+    ws.send("update", { appMounted: true });
+    await cdp.init();
   }, []);
 
-  if (!ready) {
+  if (!appMounted) {
     return <></>;
-  } else if (!store.serverURL) {
+  } else if (!serverURL) {
     return <ConfigPanel />;
-  } else if (!store.serverURLAvailable) {
-    return <NotRunning />;
   } else {
     return <Preview />;
   }

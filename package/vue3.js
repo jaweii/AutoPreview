@@ -45,6 +45,6 @@ export default class AutoPreviewForVue extends AutoPreview {
     components.forEach(item => app.component(item.name, item.component));
 
     if (this.beforeMount) { this.beforeMount(app); }
-    app.mount(this.newTarget());
+    app.mount(this.createTarget());
   }
 }

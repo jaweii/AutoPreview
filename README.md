@@ -52,7 +52,7 @@ if (process.env.NODE_ENV === 'development') {
 
 > Other projects refer to the implementation of `autopreview/react` or `autopreview/vue2`, that is, call `getActiveFilePath()` method exported by `autopreview/index` to get the file path in active text editor, and pass it to `import(filepath)` to get components exported in the file, those components can be previewed by mounting to page.
 
-3. Export functional components whose names start with `AutoPreview_`;
+3. Export functional components whose names start with `autopreview_`(Not case sensitive);
 
 Preview React component:
 

@@ -4,50 +4,39 @@ import { join } from "path";
 import { getExtensionConfig } from "./utils/vscode";
 import * as http from "http";
 import output from "./utils/output";
-import WSStore from "./WSStore";
+import wsStore from "./wsStore";
 import { reaction } from "mobx";
 
 export class PreviewProvider implements vscode.WebviewViewProvider {
-  init({ extensionUri, wsStore }: { extensionUri: vscode.Uri; wsStore: WSStore }) {
+  init({ extensionUri }: { extensionUri: vscode.Uri }) {
     this._extensionUri = extensionUri;
-    this.wsStore = wsStore;
-    wsStore._on('REFRESH', () => this.refreshPage({ force: true }));
-    wsStore._on('ERROR', (data: string) => vscode.window.showErrorMessage(data));
-    wsStore._on('CONSOLE', ({ type, data }: { type: string, data: string }) => {
-      const args: any[] = JSON.parse(data);
-      for (const line of args) {
-        if (typeof line === "string") {
-          // 过滤输出
-          if (/^(\[PACKAGE\]|\[EXTENSION\]|\[EXTENSION\/VIEW\])/.test(line)) {
-            break;
-          }
-          const index = args.indexOf(line);
-          if (index === 0) {
-            output.appendLine(`[${type}] ${line}`);
-          } else {
-            output.appendLine(`${line}`);
-          }
-        } else {
-          output.appendLine(JSON.stringify(line));
-        }
+    //#region 自定义指令
+    wsStore.on('REFRESH', () => this.refreshPage({ force: true }));
+    wsStore.on('ERROR', (data: string) => vscode.window.showErrorMessage(data));
+    //#endregion
+    //#region 响应数据变化
+    reaction(() => wsStore.attributes.serverURL, () => {
+      getExtensionConfig().update('serverURL', wsStore.attributes.serverURL);
+    });
+    reaction(() => wsStore.attributes.locked, () => {
+      vscode.commands.executeCommand(`AutoPreview.debug.${wsStore.attributes.locked ? 'lock' : 'unlock'}`);
+    });
+    reaction(() => wsStore.attributes.background, () => getExtensionConfig().update("background", wsStore.attributes.background));
+    reaction(() => wsStore.attributes.center, () => getExtensionConfig().update("center", wsStore.attributes.center));
+    reaction(() => wsStore.attributes.appMounted, () => wsStore.attributes.appMounted && this.checkServerURL());
+    reaction(() => [wsStore.attributes.components, wsStore.attributes.componentIndex], () => {
+      if (!this.view) { return; };
+      if ((wsStore.attributes.components || []).length === 0) {
+        // this.view.title = '';
       }
+      // this.view.title = wsStore.attributes.components![wsStore.attributes.componentIndex!];
     });
-    reaction(() => wsStore.serverURL, () => {
-      getExtensionConfig().update('serverURL', wsStore.serverURL);
-      // this.refreshPage({ force: true });
-    });
-    reaction(() => wsStore.locked, () => {
-      vscode.commands.executeCommand(`AutoPreview.debug.${wsStore.locked ? 'lock' : 'unlock'}`);
-    });
-    reaction(() => wsStore.background, () => getExtensionConfig().update("background", wsStore.background));
-    reaction(() => wsStore.center, () => getExtensionConfig().update("center", wsStore.center));
-    reaction(() => wsStore.appMounted, () => wsStore.appMounted && this.checkServerURL());
+    //#endregion
   }
 
   public static readonly id = "AutoPreview.debug";
 
   private _extensionUri!: vscode.Uri;
-  public wsStore!: WSStore;
 
   view?: vscode.WebviewView;
 
@@ -69,30 +58,31 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
 
   loadConfig() {
     const config = getExtensionConfig();
-    this.wsStore._update({
+    wsStore.update({
       serverURL: config.get("serverURL"),
     });
   }
 
   async checkServerURL() {
-    if (!this.wsStore.serverURL) {
-      return this.wsStore._update({ 'serverURLAvailable': false });
+    const { serverURL } = wsStore.attributes;
+    if (!serverURL) {
+      return wsStore.update({ 'serverURLAvailable': false });
     }
     try {
       await new Promise((resolve, reject) => {
         http
-          .get(this.wsStore.serverURL!, (res) => {
-            this.wsStore._update({ 'serverURLAvailable': true });
+          .get(serverURL!, (res) => {
+            wsStore.update({ 'serverURLAvailable': true });
             resolve(true);
           })
           .on("error", (err) => {
-            this.wsStore._update({ 'serverURLAvailable': false });
+            wsStore.update({ 'serverURLAvailable': false });
             resolve(false);
           });
       });
     } catch (err) {
       console.log(err);
-      this.wsStore._update({ 'serverURLAvailable': false });
+      wsStore.update({ 'serverURLAvailable': false });
     }
   }
 
@@ -100,15 +90,13 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
     if (!this.view) {
       return;
     }
-    this.wsStore._update({ appMounted: false, componentMounted: false, packageInitiated: false, });
     this.loadConfig();
     if (force) {
       this.view.webview.html = "";
       await new Promise((resolve, reject) => setTimeout(resolve, 50));
-      this.view!.webview.html = this._getHtmlForWebview();
-    } else {
-      this.view.webview.html = this._getHtmlForWebview();
     }
+    wsStore.update({ appMounted: false, componentMounted: false, packageInitiated: false, });
+    this.view.webview.html = this._getHtmlForWebview();
   }
 
   private _getHtmlForWebview() {
@@ -119,7 +107,7 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
       "index.html"
     );
     let html = readFileSync(appFilePath, "utf-8");
-    html = html.replace('__WS_PORT__', this.wsStore._port.toString());
+    html = html.replace('__WS_PORT__', wsStore.port.toString());
     return html;
   }
 

@@ -1,34 +1,6 @@
 
-import getPort from 'get-port';
-import * as puppeteer from 'puppeteer-core';
 import { DebugConfigurationProvider } from "vscode";
-import * as chrome from 'karma-chrome-launcher';
-import * as vscode from "vscode";
-import { getExtensionConfig } from './utils/vscode';
-
-function getChromiumPath() {
-  let foundPath: string | undefined = undefined;
-  const knownChromiums = Object.keys(chrome);
-
-  knownChromiums.forEach((key) => {
-    if (foundPath) { return; }
-    if (!key.startsWith('launcher')) { return; }
-
-    // @ts-ignore
-    const info: typeof import('karma-chrome-launcher').example = chrome[key];
-
-    if (!info[1].prototype) { return; }
-    if (!info[1].prototype.DEFAULT_CMD) { return; }
-
-    const possiblePaths = info[1].prototype.DEFAULT_CMD;
-    const maybeThisPath = possiblePaths[process.platform];
-    if (maybeThisPath && typeof maybeThisPath === 'string') {
-      foundPath = maybeThisPath;
-    }
-  });
-
-  return foundPath;
-}
+import cdpController from "./cdpController";
 
 export default {
   async provideDebugConfigurations(folder, token) {
@@ -43,34 +15,20 @@ export default {
   },
   async resolveDebugConfiguration(folder, config, token) {
     if (config.type !== 'AutoPreview') { return; };
-    const port = await getPort({
-      port: 18597,
-      host: 'localhost'
-    });
-
-    const browser = await puppeteer.launch({
-      executablePath: getChromiumPath(),
-      args: [`--remote-debugging-port=${port}`],
-      ignoreHTTPSErrors: true
-    });
-    const page = await browser.newPage();
-    const client = await page.target().createCDPSession();
-    client.send('Page.navigate', { url: getExtensionConfig().get('serverURL') });
 
     const debugConfig = {
-      name: `Browser Preview`,
-      type: `chrome`,
+      name: `AutoPreview`,
+      type: `pwa-chrome`,
       request: 'attach',
-      port,
-      webRoot: undefined,
-      pathMapping: undefined,
-      trace: undefined,
-      sourceMapPathOverrides: undefined,
-      urlFilter: '',
-      url: '',
+      port: cdpController.port!,
+      // webRoot: undefined,
+      // pathMapping: undefined,
+      // trace: undefined,
+      // sourceMapPathOverrides: undefined,
+      // urlFilter: '',
+      // url: '',
     };
-    await vscode.debug.startDebugging(folder, debugConfig);
-
-    return null;
+    // await vscode.debug.startDebugging(folder, debugConfig);
+    return debugConfig;
   },
 } as DebugConfigurationProvider;

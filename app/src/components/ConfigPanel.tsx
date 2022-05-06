@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import store from "../../store";
+import ws from "../store/ws";
 
 export default function ConfigPanel() {
   const [state, setState] = useState({
@@ -7,7 +7,7 @@ export default function ConfigPanel() {
   });
   const methods = {
     save() {
-      store.send("update", { serverURL: state.serverURL });
+      ws.send("update", { serverURL: state.serverURL });
     },
   };
 
