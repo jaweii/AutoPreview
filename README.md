@@ -196,6 +196,27 @@ Refer to [webpack4+vue2](/demo)
 
 Refer to [Vite+vue3](/demo)
 
+## Debug
+
+The extension registered a debug adapter named AutoPreview, you can debug your component when previewing by adding the following configuration to launch.json:
+
+```
+// launch.json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "AutoPreview",
+      "request": "attach",
+      "type": "AutoPreview"
+    }
+  ]
+}
+
+```
+
+![](https://raw.githubusercontent.com/jaweii/AutoPreview/main/demo/img/debug.png)
+
 ## Web Component
 
 `autopreview` package registers some web components that you can use them directly:
