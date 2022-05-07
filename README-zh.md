@@ -2,7 +2,7 @@
 
 [中文](https://github.com/jaweii/AutoPreview/blob/main/README-zh.md) | [English](https://github.com/jaweii/AutoPreview/blob/main/README.md)
 
-在 VS Code 中实时预览 React/Vue 组件
+在 VS Code 中实时调试预览 React/Vue 组件
 
 ![](https://raw.githubusercontent.com/jaweii/AutoPreview/main/demo/img/webpack5_react.gif)
 
@@ -52,7 +52,7 @@ if (process.env.NODE_ENV === 'development') {
 
 > 其他项目参考`autopreview/react`和`autopreview/vue2`的实现，即通过`autopreview/index`导出的`getActiveFilePath()`方法拿到当前窗口文件路径，传给`import(PATH)`拿到当前窗口导出的组件，将目标组件挂载到页面，即可实现预览。
 
-3、导出`autopreview_`开头的函数组件(大小写不敏感)：
+3、导出`autopreview`开头的函数组件(大小写不敏感)，如 autopreviewButton/AutopreviewText/Autopreview_Header：
 
 React 组件示例：
 
@@ -83,7 +83,7 @@ const Header = defineComponent({
 });
 export default Header;
 
-export function AutoPreview_Header() {
+export function autopreviewHeader() {
   return <Header title="Title" />;
 }
 </script>
@@ -112,26 +112,6 @@ export function AutoPreview_Test(h) {
 ```
 
 4、参考**配置要求**配置好 Webpack/Vite，然后启动项目，在 VS Code 预览窗口输入 localhost 地址即可。
-
-## Web 组件
-
-`autopreview`包注册了下面这些 Web 组件，可以直接使用，主要用于包裹被预览的内容来控制布局：
-
-- `autopreview-list`：列表展示，即应用了`flex-direction: column`;
-
-例子：
-
-```
-<autopreview-list>
-  <Button type="primary">Primary Button</Button>
-  <Button>Default Button</Button>
-  <Button type="dashed">Dashed Button</Button>
-  <Button type="text">Text Button</Button>
-  <Button type="link">Link Button</Button>
-<autopreview-list>
-```
-
-![](https://raw.githubusercontent.com/jaweii/AutoPreview/main/demo/img/autopreview-list.png)
 
 ## 配置要求
 
@@ -194,90 +174,101 @@ module.exports = function (webpackEnv) {
 
 ### Webpack5+React (create-react-app)
 
-webpack5 配置：
-
-初始化：
-
-导出预览：
-
 参考 demo 目录下的 webpack5+react 项目
 
 ### Webpack5+Vue3 (Vue CLI)
-
-webpack5 配置：
-
-初始化：
-
-导出预览：
 
 参考 demo 目录下的 webpack5+vue3 项目
 
 ### Vite+React (Vite CLI)
 
-Vite：
-
-初始化：
-
-导出预览：
-
 参考 demo 目录下的 vite+vue3 项目
 
 ### Webpack4+Vue2 (Vue CLI)
-
-Webpack4 配置：
-
-初始化：
-
-导出预览：
 
 参考 demo 目录下的 webpack4+vue2 项目
 
 ### Vite+Vue3 (Vite CLI)
 
-Vite：
-
-初始化：
-
-导出预览：
-
 参考 demo 目录下的 Vite+vue3 项目
 
-### 欢迎补充
+## Debug
+
+本插件提供了名为 AutoPreview 的调试适配器，在 launch.json 中配置后即可在预览的同时进行调试，配置参考：
+
+```
+// launch.json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "AutoPreview",
+      "request": "attach",
+      "type": "AutoPreview"
+    }
+  ]
+}
+
+```
+
+![](https://raw.githubusercontent.com/jaweii/AutoPreview/main/demo/img/debug.png)
+
+## Web 组件
+
+`autopreview`包注册了下面这些 Web 组件，可以直接使用，主要用于包裹被预览的内容来控制布局：
+
+- `autopreview-list`：列表展示，即应用了`flex-direction: column`;
+
+例子：
+
+```
+<autopreview-list>
+  <Button type="primary">Primary Button</Button>
+  <Button>Default Button</Button>
+  <Button type="dashed">Dashed Button</Button>
+  <Button type="text">Text Button</Button>
+  <Button type="link">Link Button</Button>
+<autopreview-list>
+```
+
+![](https://raw.githubusercontent.com/jaweii/AutoPreview/main/demo/img/autopreview-list.png)
 
 ## TODO
 
 · ~~英文版~~
 
+· ~~Debug 功能~~
+
 · 预览面板中，复制组件用例代码
 
 · 完善常用脚手架的配置例子
 
-· 整合 VS Code Debug 功能
-
 · 测试 Windows 系统使用
 
-· 插件 logo
+## Q&A
 
-## 常见问题
+1、关于插件侵入性
 
-1、提示 autopreview 模块未安装
+开发环境，目前必须项目引入`autopreview`包初始化才能配合插件使用，这点的确具有侵入性，但是没有危险，没有安装插件也不会影响使用，不存在强制其他人也安装插件的问题。
 
-尝试重启VS Code，然后重启服务。
+生成环境，Webpack 和 Vite 的 tree shaking 会在打包时移除预览组件。
 
-2、Vue 3.0 中跨文件的 Provide、Reject 引用可能会不支持预览。
+2、某些引起报错的场景
 
-3、是否会让项目体积变大？
+已知一些会引起报错的场景，需要进行特殊处理，比如：
 
-Webpack 和 Vite 的 tree shaking 功能会在打包时过滤掉没有使用的代码，所以 AutoPreview\_的代码不会影响项目体积。
+React-router v6 中的hook函数，比如`useNavigate`，只能用在`Router`组件的后代中，直接用在预览函数中会报错，所以需要对预览函数返回的组件进行相应的包裹处理。
 
-4、切换编辑窗口后预览窗口没有相应更新
+Vue 3.0 中 `Provide`、`Reject` 同理也可能出现这种问题。
 
-检查 Webpack/Vite 是不是没有监控(Watch) `node_modules/autopreview` 变化，以及缓存(Cache)是否没有排除掉`node_modules/autopreview`。
+3、提示 autopreview 包未安装
 
-5、项目启动后预览窗口显示”Access failed“
+尝试重启 VS Code，然后重启服务。
 
-检查.vscode/setting.json 中配置的`AutoPreview.serverURL`是否与服务地址一致。
+4、项目启动后预览窗口显示”Access failed“
+
+检查`.vscode/setting.json` 中配置的`AutoPreview.serverURL`是否与服务地址一致。
 
 ---
 
-如遇到其他问题，可通过 VS Code-Help-Toggle Developer Tools 打开调试，查看报错，欢迎提交 issue，欢迎提 PR！
+如遇到其他问题，可通过 VS Code-Help-Toggle Developer Tools 打开调试，查看报错。

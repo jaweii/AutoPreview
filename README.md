@@ -52,7 +52,7 @@ if (process.env.NODE_ENV === 'development') {
 
 > Other projects refer to the implementation of `autopreview/react` or `autopreview/vue2`, that is, call `getActiveFilePath()` method exported by `autopreview/index` to get the file path in active text editor, and pass it to `import(filepath)` to get components exported in the file, those components can be previewed by mounting to page.
 
-3. Export functional components whose names start with `autopreview_`(Not case sensitive);
+3. Export functional components whose names start with `autopreview`(Not case sensitive), like autopreviewButton/AutopreviewText/Autopreview_Header;
 
 Preview React component:
 
@@ -65,7 +65,7 @@ export function AutoPreview_Button() {
   return (<Button onClick={() => console.log("click")}> CLICK </Button>);
 }
 
-export function AutoPreview_Button_primary() {
+export function autopreviewPrimary() {
   return (<Button type="primary" > PRIMARY </Button>);
 }
 ```
@@ -111,33 +111,13 @@ const Header = {
 export default Header;
 
 // Note that `h` parameter must be declared
-export function AutoPreview_Test(h) {
+export function autopreviewTest(h) {
   return <Header title="Title" />;
 }
 </script>
 ```
 
 4. Refer to **Webpack/Vite Configuration** to configure Webpack/Vite, then start project, and save localhost address in preview panel;
-
-## Web Component
-
-`autopreview` package registers some web components that you can use them directly:
-
-- `autopreview-list`: Display as a column list;
-
-Example:
-
-```
-<autopreview-list>
-  <Button type="primary">Primary Button</Button>
-  <Button>Default Button</Button>
-  <Button type="dashed">Dashed Button</Button>
-  <Button type="text">Text Button</Button>
-  <Button type="link">Link Button</Button>
-<autopreview-list>
-```
-
-![](https://raw.githubusercontent.com/jaweii/AutoPreview/main/demo/img/autopreview-list.png)
 
 ## Webpack/Vite Configuration
 
@@ -192,93 +172,81 @@ module.exports = function (webpackEnv) {
 
 ### Webpack 4
 
-//
+// Nothing
 
 ## CLI DEMO
 
 ### Webpack5+React (create-react-app)
 
-webpack5 Configuration:
-
-Initialization:
-
-Export preview:
-
 Refer to [demo/webpack5+react](/demo)
 
 ### Webpack5+Vue3 (Vue CLI)
-
-webpack5 Configuration:
-
-Initialization:
-
-Export preview:
 
 Refer to [demo/webpack5+vue3](/demo)
 
 ### Vite+React (Vite CLI)
 
-Vite：
-
-Initialization
-
-Export preview:
-
 Refer to [vite+vue3](/demo)
 
 ### Webpack4+Vue2 (Vue CLI)
-
-Webpack4 Configuration:
-
-Initialization:
-
-Export preview:
 
 Refer to [webpack4+vue2](/demo)
 
 ### Vite+Vue3 (Vite CLI)
 
-Vite：
-
-Initialization
-
-Export preview:
-
 Refer to [Vite+vue3](/demo)
 
-### Welcome PR
+## Web Component
+
+`autopreview` package registers some web components that you can use them directly:
+
+- `autopreview-list`: Display as a column list;
+
+Example:
+
+```
+<autopreview-list>
+  <Button type="primary">Primary Button</Button>
+  <Button>Default Button</Button>
+  <Button type="dashed">Dashed Button</Button>
+  <Button type="text">Text Button</Button>
+  <Button type="link">Link Button</Button>
+<autopreview-list>
+```
+
+![](https://raw.githubusercontent.com/jaweii/AutoPreview/main/demo/img/autopreview-list.png)
 
 ## TODO
 
 · ~~English Doc~~
 
-· Copy component code to clipboard in preview panel
+· ~~VS Code Debug~~
 
 · Complete popular CLI Demo
 
-· Integrate VS Code Debug
+· Copy component code to clipboard in preview panel
 
 · Test on Windows
 
-· Extension logo
-
 ## Q&A
 
-1. "`autopreview` is not installed"
+1. Extension Invasive
+
+In develop environment, you have to import `autopreview` package to your project, it's indeed invasive, but it doesn't force others install the extension.
+
+In product environment, when building your project, tree shaking will remove preview components from your project.
+
+2. Known issues
+
+The hooks in React-router v6, such as `useNavigate` can only be used in descendants of the Router component, and it will throw an error when used directly in preview function, so the component returned by preview function need to be wrapped accordingly.
+
+The `Provide` and `Reject` api in Vue 3.0 have the same problem.
+
+3. "`autopreview` is not installed"
 
 Restart VS Code, and then restart your project.
 
-2. In Vue 3, components using `Provide` or `Reject` may not be previewed.
-
-3. Will it make project bigger?
-
-Webpack and Vite have tree shaking feature, unused components will not be bundled to production.
-
-4. Preview panel is not updated after switch active text editor
-
-Make sure your Webpack/Vite is Watching `node_modules/autopreview` directory, and exclude `node_modules/autopreview` directory from Cache.
-
-5. Preview panel shows "Access failed"
+4. Preview panel shows "Access failed"
 
 Check `AutoPreview.serverURL` in `.vscode/setting.json` is the same as your dev server address.
 
