@@ -102,7 +102,7 @@ class Store {
     });
   }
 
-  send(action: string, data?: any) {
+  send(action: string, data?: any): Promise<any> {
     if (!this.ws) { return Promise.reject('Websocket is not initialized'); };
     return new Promise((resolve, reject) => {
       const id = Date.now().toString();

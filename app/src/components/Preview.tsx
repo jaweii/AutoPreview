@@ -29,7 +29,7 @@ export default observer(function Preview() {
           <div>
             <a
               onClick={() => {
-                ws.send("REFRESH");
+                // ws.send("REFRESH");
                 location.reload();
               }}
             >
@@ -51,7 +51,7 @@ export default observer(function Preview() {
         {debugging && (
           <Viewport
             className={classNames({
-              "opacity-0": componentMounted ? undefined : "hidden",
+              "opacity-0": !componentMounted ,
             })}
           />
         )}
@@ -59,7 +59,7 @@ export default observer(function Preview() {
           <iframe
             id="iframe"
             className={classNames("absolute w-full h-full", {
-              "opacity-0": componentMounted ? undefined : "hidden",
+              "opacity-0": !componentMounted ,
             })}
             src={ws.url}
             frameBorder="0"

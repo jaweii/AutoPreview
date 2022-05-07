@@ -10,7 +10,6 @@ import cdpController from "./cdpController";
 
 export async function activate(context: vscode.ExtensionContext) {
   await wsStore.init();
-  await cdpController.init();
   previewer.init({ extensionUri: context.extensionUri });
 
   vscode.commands.registerCommand("AutoPreview.debug.refresh", () => {
@@ -24,6 +23,12 @@ export async function activate(context: vscode.ExtensionContext) {
     getExtensionConfig().update("locked", false);
     const activeFilePath = vscode.window.activeTextEditor?.document.uri.fsPath;
     updateActiveFile(activeFilePath!, context);
+  });
+  vscode.debug.onDidTerminateDebugSession(e => {
+    console.log(e);
+    if (e.name === 'AutoPreview') {
+      cdpController.dispose();
+    }
   });
 
   const disposable = vscode.window.registerWebviewViewProvider(
@@ -42,7 +47,6 @@ export async function activate(context: vscode.ExtensionContext) {
   initWorkspace();
   vscode.workspace.onDidChangeWorkspaceFolders((e) => initWorkspace());
 
-  // 活动窗口变化
   async function onActiveTextEditorChange() {
     const activeFilePath = vscode.window.activeTextEditor?.document.uri.fsPath;
     if (getExtensionConfig().get("locked")) {
@@ -93,7 +97,7 @@ function installNodeModule(context: vscode.ExtensionContext) {
   if (!getActiveFolder()) {
     return;
   }
-  // 如果没有package.json，则不注入autopreview包
+  // inject autopreview package to web project
   const packagePath = join(getActiveFolder()!.uri.fsPath, "package.json");
   if (!existsSync(packagePath)) {
     return;
@@ -132,10 +136,10 @@ function updateActiveFile(
     activeFile = "";
     indexJsContent = indexJsContent.replace(/.*import.*/g, activeFile);
   }
-  // 当前窗口是否使用AutoPreview, vue文件除外
+  // Check active file whether include preview component, except Vue files
   if (
     // !/(vue)$/.test(activeFile) &&
-    activeFileContent.indexOf("AutoPreview_") === -1
+    activeFileContent.toLocaleLowerCase().indexOf("autopreview") === -1
   ) {
     activeFile = "";
     indexJsContent = indexJsContent.replace(/.*import.*/g, activeFile);
@@ -150,6 +154,7 @@ function updateActiveFile(
     writeFileSync(dst, indexJsContent);
     // Don't notify old client
     wsStore.wss.clients.forEach(client => client.close());
+    // if (vscode.debug.activeDebugSession) { vscode.debug.stopDebugging(vscode.debug.activeDebugSession); }
     wsStore.update({
       componentIndex: 0,
       components: [],

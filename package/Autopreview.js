@@ -120,7 +120,7 @@ export default class AutoPreview {
     const activeModule = await this.getModule() || {};
     const keys = Object.keys(activeModule)
       .filter((key) => {
-        if (key.toLowerCase().startsWith("autopreview_")) {
+        if (key.toLowerCase().startsWith("autopreview")) {
           return true;
         }
         return false;

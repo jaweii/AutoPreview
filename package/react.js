@@ -16,7 +16,7 @@ export default class AutoPreviewForReact extends AutoPreview {
     return new Promise((resolve, reject) => {
       class Wrapper extends Component {
         componentDidMount() {
-          resolve();
+          setTimeout(resolve, 500);
         }
         render() {
           let el;

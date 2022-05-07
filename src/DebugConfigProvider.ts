@@ -15,7 +15,7 @@ export default {
   },
   async resolveDebugConfiguration(folder, config, token) {
     if (config.type !== 'AutoPreview') { return; };
-
+    await cdpController.init();
     const debugConfig = {
       name: `AutoPreview`,
       type: `pwa-chrome`,

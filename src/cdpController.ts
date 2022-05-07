@@ -38,12 +38,12 @@ class CDPController {
 
   async init() {
     this.port = await getPort();
-    const browser = await puppeteer.launch({
+    this.browser = await puppeteer.launch({
       executablePath: getChromiumPath(),
       args: [`--remote-debugging-port=${this.port}`],
       ignoreHTTPSErrors: true
     });
-    const [page] = await browser.pages();
+    const [page] = await this.browser.pages();
     this.page = page;
 
     this.page.on('dialog', dialog => {
@@ -90,6 +90,11 @@ class CDPController {
   browser?: puppeteer.Browser;
   page?: puppeteer.Page;
   client?: puppeteer.CDPSession;
+
+  dispose() {
+    this.browser?.close();
+    wsStore.off('CDP');
+  }
 }
 
 const cdpController = new CDPController();

@@ -43,9 +43,6 @@ interface Attributes {
   debugging?: boolean;
 }
 
-const properties = ['serverURL', 'packageManager', 'locked', 'background', 'center', 'serverURLAvailable', 'activeFile',
-  'componentIndex', 'components', 'packageInitiated', 'appMounted', 'componentMounted', 'debugging', 'loaded'];
-
 class WSStore {
   async init() {
     makeAutoObservable(this);
@@ -65,7 +62,7 @@ class WSStore {
       ws.on('message', d => this.onMessage(ws, d));
       ws.send(JSON.stringify({
         action: 'init',
-        data: pick(this.attributes, properties)
+        data: this.attributes
       }));
     });
     this.port = port;
@@ -81,7 +78,7 @@ class WSStore {
     switch (action) {
       case 'update':
         console.log('[WSStore]', action, data);
-        const illegal = Object.keys(data!).filter(key => !properties.includes(key));
+        const illegal = Object.keys(data!).filter(key => !Object.keys(this.attributes).includes(key));
         if (illegal.length) {
           console.warn(`[WSStore] received illegal update: ${illegal.join(',')}`);
         }
@@ -152,6 +149,11 @@ class WSStore {
     }
     this.events[name].push(fn);
   }
+
+  off(name: string) {
+    delete this.events[name];
+  }
+
 
   attributes: Attributes = {
     serverURL: '',

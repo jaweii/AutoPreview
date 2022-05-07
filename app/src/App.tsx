@@ -7,13 +7,18 @@ import cdp from "./store/cdp";
 import { useAsyncEffect } from "ahooks";
 
 export default observer(function App() {
-  const { serverURL, appMounted } = ws.attributes;
+  const { serverURL, appMounted, debugging } = ws.attributes;
 
   useAsyncEffect(async () => {
     await ws.init();
     ws.send("update", { appMounted: true });
-    await cdp.init();
   }, []);
+
+  useEffect(() => {
+    if (debugging) {
+      cdp.init();
+    }
+  }, [debugging]);
 
   if (!appMounted) {
     return <></>;

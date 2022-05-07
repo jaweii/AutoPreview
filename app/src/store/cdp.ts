@@ -13,7 +13,7 @@ class Connection {
     makeAutoObservable(this);
   }
 
-  initiated = false;
+  // initiated = false;
 
   viewport = {
     width: null as number | null,
@@ -39,7 +39,11 @@ class Connection {
       await ws.send('Page.screencastFrameAck', { sessionId: data.sessionId });
       runInAction(() => this.screencastFrame = data);
     });
-    await ws.send("Page.navigate", { url: ws.url });
+    ws.send('Page.enable');
+    ws.send('DOM.enable');
+    ws.send('CSS.enable');
+    ws.send('Overlay.enable');
+    ws.send("Page.navigate", { url: ws.url });
 
     //#region 设置
     // ws.send('Page.setInterceptFileChooserDialog', { enabled: true });
@@ -50,7 +54,7 @@ class Connection {
   async restartCasting() {
     await ws.send('Page.stopScreencast');
     const params = {
-      quality: 70,
+      quality: 80,
       format: 'jpeg',
       maxWidth: 2000,
       maxHeight: 2000,

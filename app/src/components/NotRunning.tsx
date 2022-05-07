@@ -9,7 +9,14 @@ export default function NotRunning() {
         <span>Access Failed </span>
       </div>
       <div className="pt-3">
-        <a onClick={() => ws.send("REFRESH")}>Retry</a>
+        <a
+          onClick={() => {
+            // ws.send("REFRESH");
+            location.reload();
+          }}
+        >
+          Retry
+        </a>
       </div>
     </div>
   );

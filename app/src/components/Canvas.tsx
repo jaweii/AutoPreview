@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, KeyboardEvent } from "react";
+import React, { HTMLAttributes, KeyboardEvent, useState } from "react";
 import { observer } from "mobx-react";
 import { FC } from "react";
 import cdp from "../store/cdp";
@@ -12,6 +12,8 @@ interface Props extends HTMLAttributes<HTMLCanvasElement> {}
 const Canvas: FC<Props> = ({}) => {
   const canvasRef = useRef<HTMLCanvasElement>();
   const image = useRef<HTMLImageElement>();
+
+  const [state, setState] = useState({ cursor: "auto" });
 
   const methods = {
     render() {
@@ -50,11 +52,16 @@ const Canvas: FC<Props> = ({}) => {
         ],
       });
     },
-    onMouseMove(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) {
+    async onMouseMove(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) {
       ws.send("puppeteer", {
         name: "page.mouse.move",
         args: [e.clientX, e.clientY],
       });
+      const style = await methods.getComputedStyle(
+        Math.floor(e.clientX),
+        Math.floor(e.clientY)
+      );
+      setState({ ...state, cursor: style.cursor || state.cursor });
     },
     onContextMenu(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) {
       e.preventDefault();
@@ -88,6 +95,27 @@ const Canvas: FC<Props> = ({}) => {
       });
     },
     onKeyPress(e: KeyboardEvent<HTMLCanvasElement>) {},
+    async getComputedStyle(x: number, y: number) {
+      const nodeInfo = await ws.send("DOM.getNodeForLocation", { x, y });
+      if (!nodeInfo) {
+        return {};
+      }
+      let nodeId: string = nodeInfo.nodeId;
+      if (!nodeId) {
+        await ws.send("DOM.getDocument");
+        let nodeIdsReq = await ws.send("DOM.pushNodesByBackendIdsToFrontend", {
+          backendNodeIds: [nodeInfo.backendNodeId],
+        });
+        nodeId = nodeIdsReq && nodeIdsReq[0];
+      }
+      const { computedStyle = [] } =
+        (await ws.send("CSS.getComputedStyleForNode", {
+          nodeId,
+        })) || {};
+      return computedStyle.reduce((pre, cur, i) => {
+        return { ...pre, [cur.name]: cur.value };
+      }, {});
+    },
   };
 
   return (
@@ -111,6 +139,9 @@ const Canvas: FC<Props> = ({}) => {
         onKeyUp={methods.onKeyUp}
         onKeyPress={methods.onKeyPress}
         tabIndex={0}
+        style={{
+          cursor: state.cursor,
+        }}
       />
     </>
   );
