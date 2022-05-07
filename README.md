@@ -219,7 +219,7 @@ The extension registered a debug adapter named AutoPreview, you can debug your c
 
 ## Web Component
 
-`autopreview` package registers some web components that you can use them directly:
+`autopreview` package registered some web components that you can use them directly:
 
 - `autopreview-list`: Display as a column list;
 
