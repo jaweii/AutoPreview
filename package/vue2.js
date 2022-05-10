@@ -48,3 +48,5 @@ export default class AutoPreviewForVue extends AutoPreview {
     this.createTarget().appendChild(rootComponent.$el);
   }
 }
+
+export const AutoPreview = AutoPreviewForVue;

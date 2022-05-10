@@ -25,3 +25,4 @@ export default class AutoPreviewForReact extends AutoPreview {
 }
 
 
+export const AutoPreview = AutoPreviewForReact;

@@ -13,7 +13,7 @@ export default function ConfigPanel() {
 
   return (
     <div className="px-5 w-full">
-      <div className="py-5">Enter the local server address：</div>
+      <div className="py-5">Configuration：</div>
       <div className="flex items-center">
         <label className="w-32">Local Server</label>
         <input

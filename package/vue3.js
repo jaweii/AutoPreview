@@ -48,3 +48,5 @@ export default class AutoPreviewForVue extends AutoPreview {
     app.mount(this.createTarget());
   }
 }
+
+export const AutoPreview = AutoPreviewForVue;
