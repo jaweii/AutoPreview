@@ -300,4 +300,4 @@ Vue 3.0 中 `Provide`、`Reject` 同理也可能出现这种问题。
 
 ---
 
-如遇到其他问题，可通过 VS Code-Help-Toggle Developer Tools 打开调试，查看报错。
+如遇到其他问题，可通过 VS Code-Help-Toggle Developer Tools 打开调试，查看报错。也可已加我微信沟通。

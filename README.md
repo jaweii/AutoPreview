@@ -8,11 +8,11 @@ Preview React/Vue components in VS Code.
 
 ## Usage
 
-1. Download and enable AutoPreview extension in VS Code, after enabling, you can import `autopreview` package in your React/Vue project;
+1. Download and enable AutoPreview extension in VS Code, once enabled, you can import `autopreview` package in your React/Vue project;
 
 2. import `autopreview` package and initialize it;
 
-React project:
+React:
 
 ```
 // main.ts
@@ -23,7 +23,7 @@ if (process.env.NODE_ENV === "development") {
 }
 ```
 
-Vue 3 project:
+Vue 3:
 
 ```
 // main.ts
@@ -36,7 +36,7 @@ if (process.env.NODE_ENV === "development") {
 }
 ```
 
-Vue 2 project:
+Vue 2:
 
 ```
 // main.ts
@@ -50,9 +50,9 @@ if (process.env.NODE_ENV === 'development') {
 }
 ```
 
-> Other projects refer to the implementation of `autopreview/react` or `autopreview/vue2`, that is, call `getActiveFilePath()` method exported by `autopreview/index` to get the file path in active text editor, and pass it to `import(filepath)` to get components exported in the file, those components can be previewed by mounting to page.
+> Other projects refer to the implementation of `autopreview/react` or `autopreview/vue2`, that is, call `getActiveFilePath()` method exported by `autopreview/index` to get the file path in active text editor, and pass it to `import(filepath)` to get exported components, which can be previewed by mounting to page.
 
-3. Export functional components whose names start with `autopreview`(Not case sensitive), like autopreviewButton/AutopreviewText/Autopreview_Header;
+3. Export functional components whose names start with `autopreview`(Not case sensitive), such as autopreviewButton/AutopreviewText/Autopreview_Header;
 
 Preview React component:
 
@@ -244,7 +244,7 @@ Vue project example(refer https://v2.vuejs.org/v2/cookbook/debugging-in-vscode.h
 
 ## Web Component
 
-`autopreview` package registered some web components that you can use them directly:
+`autopreview` package registered some web components you can use directly:
 
 - `autopreview-list`: Display as a column list;
 
@@ -269,7 +269,5 @@ Example:
 · ~~VS Code Debug~~
 
 · Complete popular CLI Demo
-
-· Copy component code to clipboard in preview panel
 
 · Test on Windows
