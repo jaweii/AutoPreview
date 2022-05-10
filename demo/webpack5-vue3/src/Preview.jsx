@@ -39,13 +39,13 @@ export function AutoPreview_Button_List() {
   );
 }
 
-export function AutoPreview_Button() {
+export function autopreviewButton() {
   let i = 0;
   return (
     <a-button
       type="primary"
       onClick={() => {
-        console.log("打印到OUTPUT面板", { i: i++ });
+        console.log("打印", { i: i++ });
       }}
     >
       console.log

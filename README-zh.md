@@ -194,7 +194,9 @@ module.exports = function (webpackEnv) {
 
 ## Debug
 
-本插件提供了名为 AutoPreview 的调试适配器，在 launch.json 中配置后即可在预览的同时进行调试，配置参考：
+本插件提供了名为 AutoPreview 的调试适配器，在 launch.json 中配置后即可在预览的同时进行调试，配置参考如下：
+
+React 项目配置例子
 
 ```
 // launch.json
@@ -212,6 +214,29 @@ module.exports = function (webpackEnv) {
 ```
 
 ![](https://raw.githubusercontent.com/jaweii/AutoPreview/main/demo/img/debug.png)
+
+Vue 项目配置例子(参考https://v2.vuejs.org/v2/cookbook/debugging-in-vscode.html?redirect=true)
+
+```
+// launch.json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "AutoPreview",
+      "request": "attach",
+      "name": "AutoPreview",
+      "webRoot": "${workspaceFolder}/src",
+      "breakOnLoad": true,
+      "sourceMapPathOverrides": {
+        "webpack:///src/*": "${webRoot}/*"
+      }
+    }
+  ]
+}
+```
+
+![](https://raw.githubusercontent.com/jaweii/AutoPreview/main/demo/img/debug-vue2.png)
 
 ## Web 组件
 
@@ -249,7 +274,7 @@ module.exports = function (webpackEnv) {
 
 1、关于插件侵入性
 
-开发环境，目前必须项目引入`autopreview`包初始化才能配合插件使用，这点的确具有侵入性，但是没有危险，没有安装插件也不会影响使用，不存在强制其他人也安装插件的问题。
+开发环境，目前必须项目引入`autopreview`包初始化才能配合插件使用，这点的确具有侵入性，但是没有危险，如果你有办法改善这一点欢迎贡献代码或者与我联系。
 
 生成环境，Webpack 和 Vite 的 tree shaking 会在打包时移除预览组件。
 
@@ -257,7 +282,7 @@ module.exports = function (webpackEnv) {
 
 已知一些会引起报错的场景，需要进行特殊处理，比如：
 
-React-router v6 中的hook函数，比如`useNavigate`，只能用在`Router`组件的后代中，直接用在预览函数中会报错，所以需要对预览函数返回的组件进行相应的包裹处理。
+React-router v6 中的 hook 函数，比如`useNavigate`，只能用在`Router`组件的后代中，直接用在预览函数中会报错，所以需要对预览函数返回的组件进行相应的包裹处理。
 
 Vue 3.0 中 `Provide`、`Reject` 同理也可能出现这种问题。
 

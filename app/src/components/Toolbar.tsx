@@ -115,7 +115,7 @@ export default observer(function Toolbar() {
             {(components || []).map((name, i) => {
               return (
                 <option key={name} value={i}>
-                  {name.replace("AutoPreview_", "")}
+                  {name.replace(/autopreview(_|)/i, "")}
                 </option>
               );
             })}

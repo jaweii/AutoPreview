@@ -10,6 +10,7 @@ module.exports = {
   configureWebpack: {
     snapshot: {
       managedPaths: [/^(.+?[\\/]node_modules[\\/])(?!autopreview)/],
-    }
-  }
+    },
+    devtool: 'source-map'
+  },
 }

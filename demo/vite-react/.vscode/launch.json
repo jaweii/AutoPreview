@@ -5,11 +5,9 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "browser-preview",
-      "request": "launch",
-      "name": "Launch Edge against localhost",
-      "url": "http://localhost:3002",
-      "webRoot": "${workspaceFolder}"
+      "type": "AutoPreview",
+      "request": "attach",
+      "name": "AutoPreview"
     }
   ]
 }

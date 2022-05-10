@@ -200,6 +200,8 @@ Refer to [Vite+vue3](/demo)
 
 The extension registered a debug adapter named AutoPreview, you can debug your component when previewing by adding the following configuration to launch.json:
 
+React project example:
+
 ```
 // launch.json
 {
@@ -216,6 +218,29 @@ The extension registered a debug adapter named AutoPreview, you can debug your c
 ```
 
 ![](https://raw.githubusercontent.com/jaweii/AutoPreview/main/demo/img/debug.png)
+
+Vue project example(refer https://v2.vuejs.org/v2/cookbook/debugging-in-vscode.html?redirect=true)
+
+```
+// launch.json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "AutoPreview",
+      "request": "attach",
+      "name": "AutoPreview",
+      "webRoot": "${workspaceFolder}/src",
+      "breakOnLoad": true,
+      "sourceMapPathOverrides": {
+        "webpack:///src/*": "${webRoot}/*"
+      }
+    }
+  ]
+}
+```
+
+![](https://raw.githubusercontent.com/jaweii/AutoPreview/main/demo/img/debug-vue2.png)
 
 ## Web Component
 
@@ -248,27 +273,3 @@ Example:
 · Copy component code to clipboard in preview panel
 
 · Test on Windows
-
-## Q&A
-
-1. Extension Invasive
-
-In develop environment, you have to import `autopreview` package to your project, it's indeed invasive, but it doesn't force others install the extension.
-
-In product environment, when building your project, tree shaking will remove preview components from your project.
-
-2. Known issues
-
-The hooks in React-router v6, such as `useNavigate` can only be used in descendants of the Router component, and it will throw an error when used directly in preview function, so the component returned by preview function need to be wrapped accordingly.
-
-The `Provide` and `Reject` api in Vue 3.0 have the same problem.
-
-3. "`autopreview` is not installed"
-
-Restart VS Code, and then restart your project.
-
-4. Preview panel shows "Access failed"
-
-Check `AutoPreview.serverURL` in `.vscode/setting.json` is the same as your dev server address.
-
----

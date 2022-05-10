@@ -11,7 +11,7 @@ createApp(App)
 if (process.env.NODE_ENV === "development") {
   import("autopreview/vue3").then(({ default: AutoPreview }) => {
     new AutoPreview("#app", (app) => {
-      app.use(Antd)
+      app.use(Antd);
     });
   });
 }

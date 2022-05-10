@@ -1,4 +1,3 @@
-
 import { DebugConfigurationProvider } from "vscode";
 import cdpController from "./cdpController";
 
@@ -17,16 +16,11 @@ export default {
     if (config.type !== 'AutoPreview') { return; };
     await cdpController.init();
     const debugConfig = {
+      ...config,
       name: `AutoPreview`,
       type: `pwa-chrome`,
       request: 'attach',
       port: cdpController.port!,
-      // webRoot: undefined,
-      // pathMapping: undefined,
-      // trace: undefined,
-      // sourceMapPathOverrides: undefined,
-      // urlFilter: '',
-      // url: '',
     };
     // await vscode.debug.startDebugging(folder, debugConfig);
     return debugConfig;
