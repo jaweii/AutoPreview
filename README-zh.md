@@ -270,6 +270,10 @@ Vue 项目配置例子(参考https://v2.vuejs.org/v2/cookbook/debugging-in-vscod
 
 · 测试 Windows 系统使用
 
+## 版本回退
+
+如果当前版本的更新影响了旧版本的使用，请在仓库的 release 中下载旧版本安装文件，使用命令安装 `code --install-extension my-extension-0.0.1.vsix`。
+
 ## Q&A
 
 1、关于插件侵入性

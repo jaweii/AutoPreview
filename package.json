@@ -133,7 +133,8 @@
     "esbuild": "npm run esbuild-base -- --sourcemap",
     "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
     "pwatch": "parcel watch ./app/index.html --dist-dir ./app/dist",
-    "pbuild": "parcel build ./app/index.html --dist-dir ./app/dist"
+    "pbuild": "parcel build ./app/index.html --dist-dir ./app/dist",
+    "package": "vsce package -o release"
   },
   "devDependencies": {
     "@parcel/transformer-less": "2.3.2",
