@@ -1,3 +1,4 @@
+import mixpanel from "mixpanel-browser";
 import { makeAutoObservable, runInAction } from "mobx";
 import { domains } from "./cdp";
 
@@ -70,6 +71,12 @@ class Store {
           const { id, action, data } = JSON.parse(e.data);
           switch (action) {
             case 'init':
+              runInAction(() => {
+                Object.assign(this.attributes, data);
+                resolve(this);
+              });
+              mixpanel.track('[ws]' + action);
+              break;
             case 'update':
               runInAction(() => {
                 Object.assign(this.attributes, data);
@@ -108,6 +115,7 @@ class Store {
       const id = Date.now().toString();
       this.tasks[id] = { resolve };
       this.ws.send(JSON.stringify({ action, data, id }));
+      mixpanel.track(action, data);
       setTimeout(() => {
         reject({ type: 'timeout', action, data, });
       }, 30000);
@@ -119,6 +127,7 @@ class Store {
       this.events[name] = [];
     }
     this.events[name].push(fn);
+
   }
 
   attributes: Attributes = {

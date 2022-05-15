@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import AutoPreview from "./Autopreview.js";
+import Base from "./Autopreview.js";
 
-export default class AutoPreviewForReact extends AutoPreview {
+export default class AutoPreviewForReact extends Base {
   constructor(options) {
     super(options);
     this.framework = 'react';

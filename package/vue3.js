@@ -1,6 +1,6 @@
-import AutoPreview from "./Autopreview.js";
+import Base from "./Autopreview.js";
 
-export default class AutoPreviewForVue extends AutoPreview {
+export default class AutoPreviewForVue extends Base {
   constructor(selector, beforeMount) {
     super(selector);
     this.framework = 'vue';

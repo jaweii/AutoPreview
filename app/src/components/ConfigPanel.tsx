@@ -1,3 +1,4 @@
+import mixpanel from "mixpanel-browser";
 import React, { useState } from "react";
 import ws from "../store/ws";
 
@@ -8,6 +9,7 @@ export default function ConfigPanel() {
   const methods = {
     save() {
       ws.send("update", { serverURL: state.serverURL });
+      mixpanel.track("save");
     },
   };
 
