@@ -2,13 +2,13 @@
 
 [中文](https://github.com/jaweii/AutoPreview/blob/main/README-zh.md) | [English](https://github.com/jaweii/AutoPreview/blob/main/README.md)
 
-Preview React/Vue components in VS Code.
+Preview React/Vue components in your VS Code.
 
 ![](https://raw.githubusercontent.com/jaweii/AutoPreview/main/demo/img/webpack5_react.gif)
 
 ## Usage
 
-1. Download and enable AutoPreview extension in VS Code, once enabled, you can import `autopreview` package in your React/Vue project;
+1. Download and enable the extension from VS Code extension market, once enabled, you can import `autopreview` package in your React/Vue project;
 
 2. import `autopreview` package and initialize it;
 
@@ -50,13 +50,11 @@ if (process.env.NODE_ENV === 'development') {
 }
 ```
 
-> Other projects refer to the implementation of `autopreview/react` or `autopreview/vue2`, that is, call `getActiveFilePath()` method exported by `autopreview/index` to get the file path in active text editor, and pass it to `import(filepath)` to get exported components, which can be previewed by mounting to page.
+3. Export components using naming format like autopreviewButton/AutopreviewText/Autopreview_Header;
 
-3. Export functional components whose names start with `autopreview`(Not case sensitive), such as autopreviewButton/AutopreviewText/Autopreview_Header;
+example:
 
-Preview React component:
-
-```
+```React
 // component_list.tsx
 import React from "react";
 import { Button } from "antd";
@@ -70,9 +68,7 @@ export function autopreviewPrimary() {
 }
 ```
 
-Preview Vue3 component:
-
-```
+``` Vue3
 // Header.vue
 <template>
   <v-layout>
@@ -82,7 +78,6 @@ Preview Vue3 component:
   </v-layout>
 </template>
 <script lang="tsx">
-// Vite 2 uses React JSX by default, to use Vue JSX, you need to configure jsx in esbuild, and explicitly import h `import { h } from 'vue'`
 import { defineComponent, h } from "vue";
 const Header = defineComponent({
   props: {  title: String }
@@ -95,9 +90,7 @@ export function AutoPreview_Header() {
 </script>
 ```
 
-Preview Vue2 component:
-
-```
+``` Vue2
 <template>
   <v-app-bar>
     <v-app-bar-title>{{ title }}</v-app-bar-title>
@@ -116,8 +109,6 @@ export function autopreviewTest(h) {
 }
 </script>
 ```
-
-4. Refer to **Webpack/Vite Configuration** to configure Webpack/Vite, then start project, and save localhost address in preview panel;
 
 ## Webpack/Vite Configuration
 
@@ -172,7 +163,7 @@ module.exports = function (webpackEnv) {
 
 ### Webpack 4
 
-// Nothing
+// 
 
 ## CLI DEMO
 
@@ -198,11 +189,9 @@ Refer to [Vite+vue3](/demo)
 
 ## Debug
 
-The extension registered a debug adapter named AutoPreview, you can debug your component when previewing by adding the following configuration to launch.json:
+The extension registered a debug adapter called AutoPreview, you can debug your component when previewing by adding the following configuration to launch.json:
 
-React project example:
-
-```
+``` React
 // launch.json
 {
   "version": "0.2.0",
@@ -219,9 +208,8 @@ React project example:
 
 ![](https://raw.githubusercontent.com/jaweii/AutoPreview/main/demo/img/debug.png)
 
-Vue project example(refer https://v2.vuejs.org/v2/cookbook/debugging-in-vscode.html?redirect=true)
 
-```
+``` Vue
 // launch.json
 {
   "version": "0.2.0",
@@ -241,33 +229,3 @@ Vue project example(refer https://v2.vuejs.org/v2/cookbook/debugging-in-vscode.h
 ```
 
 ![](https://raw.githubusercontent.com/jaweii/AutoPreview/main/demo/img/debug-vue2.png)
-
-## Web Component
-
-`autopreview` package registered some web components you can use directly:
-
-- `autopreview-list`: Display as a column list;
-
-Example:
-
-```
-<autopreview-list>
-  <Button type="primary">Primary Button</Button>
-  <Button>Default Button</Button>
-  <Button type="dashed">Dashed Button</Button>
-  <Button type="text">Text Button</Button>
-  <Button type="link">Link Button</Button>
-<autopreview-list>
-```
-
-![](https://raw.githubusercontent.com/jaweii/AutoPreview/main/demo/img/autopreview-list.png)
-
-## TODO
-
-· ~~English Doc~~
-
-· ~~VS Code Debug~~
-
-· Complete popular CLI Demo
-
-· Test on Windows
